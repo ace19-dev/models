@@ -30,7 +30,7 @@ from object_detection.core import preprocessor
 from object_detection.core import standard_fields as fields
 from object_detection.utils import ops as util_ops
 from object_detection.utils import variables_helper
-from deployment import model_deploy
+from slim.deployment import model_deploy
 
 slim = tf.contrib.slim
 
@@ -235,9 +235,6 @@ def train(create_tensor_dict_fn,
       built (before optimization). This is helpful to perform additional changes
       to the training graph such as adding FakeQuant ops. The function should
       modify the default graph.
-
-  Raises:
-    ValueError: If both num_clones > 1 and train_config.sync_replicas is true.
   """
 
   detection_model = create_model_fn()
@@ -259,16 +256,9 @@ def train(create_tensor_dict_fn,
     with tf.device(deploy_config.variables_device()):
       global_step = slim.create_global_step()
 
-    if num_clones != 1 and train_config.sync_replicas:
-      raise ValueError('In Synchronous SGD mode num_clones must ',
-                       'be 1. Found num_clones: {}'.format(num_clones))
-    batch_size = train_config.batch_size // num_clones
-    if train_config.sync_replicas:
-      batch_size //= train_config.replicas_to_aggregate
-
     with tf.device(deploy_config.inputs_device()):
       input_queue = create_input_queue(
-          batch_size, create_tensor_dict_fn,
+          train_config.batch_size // num_clones, create_tensor_dict_fn,
           train_config.batch_queue_capacity,
           train_config.num_batch_queue_threads,
           train_config.prefetch_queue_capacity, data_augmentation_options)
@@ -387,8 +377,7 @@ def train(create_tensor_dict_fn,
               train_config.load_all_detection_checkpoint_vars))
       available_var_map = (variables_helper.
                            get_variables_available_in_checkpoint(
-                               var_map, train_config.fine_tune_checkpoint,
-                               include_global_step=False))
+                               var_map, train_config.fine_tune_checkpoint))
       init_saver = tf.train.Saver(available_var_map)
       def initializer_fn(sess):
         init_saver.restore(sess, train_config.fine_tune_checkpoint)

@@ -113,9 +113,7 @@ class TfExampleDetectionAndGTParser(data_parser.DataToNumpyParser):
         fields.InputDataFields.groundtruth_difficult:
             Int64Parser(fields.TfExampleFields.object_difficult),
         fields.InputDataFields.groundtruth_group_of:
-            Int64Parser(fields.TfExampleFields.object_group_of),
-        fields.InputDataFields.verified_labels:
-            Int64Parser(fields.TfExampleFields.image_class_label),
+            Int64Parser(fields.TfExampleFields.object_group_of)
     }
 
   def parse(self, tf_example):

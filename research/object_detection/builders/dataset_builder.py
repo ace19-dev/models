@@ -56,26 +56,15 @@ def _get_padding_shapes(dataset, max_num_boxes=None, num_classes=None,
   else:
     height, width = spatial_image_shape  # pylint: disable=unpacking-non-sequence
 
-  num_additional_channels = 0
-  if fields.InputDataFields.image_additional_channels in dataset.output_shapes:
-    num_additional_channels = dataset.output_shapes[
-        fields.InputDataFields.image_additional_channels].dims[2].value
   padding_shapes = {
-      # Additional channels are merged before batching.
-      fields.InputDataFields.image: [
-          height, width, 3 + num_additional_channels
-      ],
-      fields.InputDataFields.image_additional_channels: [
-          height, width, num_additional_channels
-      ],
+      fields.InputDataFields.image: [height, width, 3],
       fields.InputDataFields.source_id: [],
       fields.InputDataFields.filename: [],
       fields.InputDataFields.key: [],
       fields.InputDataFields.groundtruth_difficult: [max_num_boxes],
       fields.InputDataFields.groundtruth_boxes: [max_num_boxes, 4],
-      fields.InputDataFields.groundtruth_instance_masks: [
-          max_num_boxes, height, width
-      ],
+      fields.InputDataFields.groundtruth_instance_masks: [max_num_boxes, height,
+                                                          width],
       fields.InputDataFields.groundtruth_is_crowd: [max_num_boxes],
       fields.InputDataFields.groundtruth_group_of: [max_num_boxes],
       fields.InputDataFields.groundtruth_area: [max_num_boxes],
@@ -85,8 +74,7 @@ def _get_padding_shapes(dataset, max_num_boxes=None, num_classes=None,
       fields.InputDataFields.groundtruth_label_scores: [max_num_boxes],
       fields.InputDataFields.true_image_shape: [3],
       fields.InputDataFields.multiclass_scores: [
-          max_num_boxes, num_classes + 1 if num_classes is not None else None
-      ],
+          max_num_boxes, num_classes + 1 if num_classes is not None else None],
   }
   # Determine whether groundtruth_classes are integers or one-hot encodings, and
   # apply batching appropriately.
@@ -102,9 +90,7 @@ def _get_padding_shapes(dataset, max_num_boxes=None, num_classes=None,
                      'rank 2 tensor (one-hot encodings)')
 
   if fields.InputDataFields.original_image in dataset.output_shapes:
-    padding_shapes[fields.InputDataFields.original_image] = [
-        None, None, 3 + num_additional_channels
-    ]
+    padding_shapes[fields.InputDataFields.original_image] = [None, None, 3]
   if fields.InputDataFields.groundtruth_keypoints in dataset.output_shapes:
     tensor_shape = dataset.output_shapes[fields.InputDataFields.
                                          groundtruth_keypoints]
@@ -122,13 +108,9 @@ def _get_padding_shapes(dataset, max_num_boxes=None, num_classes=None,
           for tensor_key, _ in dataset.output_shapes.items()}
 
 
-def build(input_reader_config,
-          transform_input_data_fn=None,
-          batch_size=None,
-          max_num_boxes=None,
-          num_classes=None,
-          spatial_image_shape=None,
-          num_additional_channels=0):
+def build(input_reader_config, transform_input_data_fn=None,
+          batch_size=None, max_num_boxes=None, num_classes=None,
+          spatial_image_shape=None):
   """Builds a tf.data.Dataset.
 
   Builds a tf.data.Dataset by applying the `transform_input_data_fn` on all
@@ -146,7 +128,6 @@ def build(input_reader_config,
     spatial_image_shape: A list of two integers of the form [height, width]
       containing expected spatial shape of the image after applying
       transform_input_data_fn. If None, will use dynamic shapes.
-    num_additional_channels: Number of additional channels to use in the input.
 
   Returns:
     A tf.data.Dataset based on the input_reader_config.
@@ -171,9 +152,7 @@ def build(input_reader_config,
     decoder = tf_example_decoder.TfExampleDecoder(
         load_instance_masks=input_reader_config.load_instance_masks,
         instance_mask_type=input_reader_config.mask_type,
-        label_map_proto_file=label_map_proto_file,
-        use_display_name=input_reader_config.use_display_name,
-        num_additional_channels=num_additional_channels)
+        label_map_proto_file=label_map_proto_file)
 
     def process_fn(value):
       processed = decoder.decode(value)
