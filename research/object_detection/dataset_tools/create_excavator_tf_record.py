@@ -30,11 +30,14 @@ flags = tf.app.flags
 flags.DEFINE_string('data_dir', '/home/ace19/dl_data/excavator', 'Root Directory to raw excavator dataset.')
 flags.DEFINE_string('set', 'train', 'Convert training set, validation set or '
                     'merged set.')
+# flags.DEFINE_string('set', 'val', 'Convert training set, validation set or '
+#                     'merged set.')
 flags.DEFINE_string('annotations_dir', 'annotations',
                     '(Relative) path to annotations directory.')
 # flags.DEFINE_string('year', 'VOC2007', 'Desired challenge year.')
 flags.DEFINE_string('output_path', '/home/ace19/dl_data/excavator/data/train.record', 'Path to output TFRecord')
-flags.DEFINE_string('label_map_path', '/home/ace19/dl_data/excavator/data/excavator_label_map.pbtxt',
+# flags.DEFINE_string('output_path', '/home/ace19/dl_data/excavator/data/val.record', 'Path to output TFRecord')
+flags.DEFINE_string('label_map_path', '/home/ace19/dl_data/excavator/data/voc_excavator_label_map.pbtxt',
                     'Path to label map proto')
 flags.DEFINE_boolean('ignore_difficult_instances', False, 'Whether to ignore '
                      'difficult instances')
@@ -71,7 +74,7 @@ def dict_to_tf_example(data,
     ValueError: if the image pointed to by data['filename'] is not a valid JPEG
   """
   # img_path = os.path.join(data['folder'], image_subdirectory, data['filename'])
-  img_path = data['filename'] + '.jpg'
+  img_path = data['filename']
   full_path = os.path.join(dataset_directory, image_subdirectory, img_path)
   with tf.gfile.GFile(full_path, 'rb') as fid:
     encoded_jpg = fid.read()
@@ -107,8 +110,8 @@ def dict_to_tf_example(data,
       ymax.append(float(obj['bndbox']['ymax']) / height)
       classes_text.append(obj['name'].encode('utf8'))
       classes.append(label_map_dict[obj['name']])
-      truncated.append(int(obj['truncated']))
-      poses.append(obj['pose'].encode('utf8'))
+      # truncated.append(int(obj['truncated']))
+      # poses.append(obj['pose'].encode('utf8'))
 
   example = tf.train.Example(features=tf.train.Features(feature={
       'image/height': dataset_util.int64_feature(height),
@@ -127,8 +130,8 @@ def dict_to_tf_example(data,
       'image/object/class/text': dataset_util.bytes_list_feature(classes_text),
       'image/object/class/label': dataset_util.int64_list_feature(classes),
       'image/object/difficult': dataset_util.int64_list_feature(difficult_obj),
-      'image/object/truncated': dataset_util.int64_list_feature(truncated),
-      'image/object/view': dataset_util.bytes_list_feature(poses),
+      # 'image/object/truncated': dataset_util.int64_list_feature(truncated),
+      # 'image/object/view': dataset_util.bytes_list_feature(poses),
   }))
   return example
 

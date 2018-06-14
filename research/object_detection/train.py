@@ -58,14 +58,14 @@ tf.logging.set_verbosity(tf.logging.INFO)
 flags = tf.app.flags
 flags.DEFINE_string('master', '', 'Name of the TensorFlow master to use.')
 flags.DEFINE_integer('task', 0, 'task id')
-flags.DEFINE_integer('num_clones', 1, 'Number of clones to deploy per worker.')
+flags.DEFINE_integer('num_clones', 2, 'Number of clones to deploy per worker.')
 flags.DEFINE_boolean('clone_on_cpu', False,
                      'Force clones to be deployed on CPU.  Note that even if '
                      'set to False (allowing ops to run on gpu), some ops may '
                      'still be run on the CPU if they have no GPU kernel.')
 flags.DEFINE_integer('worker_replicas', 1, 'Number of worker+trainer '
                      'replicas.')
-flags.DEFINE_integer('ps_tasks', 0,
+flags.DEFINE_integer('ps_tasks', 1,
                      'Number of parameter server tasks. If None, does not use '
                      'a parameter server.')
 flags.DEFINE_string('train_dir', 'checkpoints/excavator',

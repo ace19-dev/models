@@ -61,12 +61,12 @@ tf.logging.set_verbosity(tf.logging.INFO)
 flags = tf.app.flags
 flags.DEFINE_boolean('eval_training_data', False,
                      'If training data should be evaluated for this job.')
-flags.DEFINE_string('checkpoint_dir', '',
+flags.DEFINE_string('checkpoint_dir', 'checkpoints/excavator',
                     'Directory containing checkpoints to evaluate, typically '
                     'set to `train_dir` used in the training job.')
 flags.DEFINE_string('eval_dir', '',
                     'Directory to write eval summaries to.')
-flags.DEFINE_string('pipeline_config_path', '',
+flags.DEFINE_string('pipeline_config_path', 'models/model/faster_rcnn_resnet101_coco.config',
                     'Path to a pipeline_pb2.TrainEvalPipelineConfig config '
                     'file. If provided, other configs are ignored')
 flags.DEFINE_string('eval_config_path', '',
