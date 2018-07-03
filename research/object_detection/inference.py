@@ -8,6 +8,7 @@ import sys
 import tarfile
 import tensorflow as tf
 import zipfile
+import datetime
 
 from collections import defaultdict
 from io import StringIO
@@ -36,18 +37,17 @@ from object_detection.utils import visualization_utils as vis_util
 #
 ######################################################################
 # What model to download.
-# MODEL_NAME = 'ssd_mobilenet_v1_coco_2017_11_17'
+MODEL_NAME = 'checkpoints/faster_rcnn_resnet101_coco'
 # MODEL_FILE = MODEL_NAME + '.tar.gz'
 # DOWNLOAD_BASE = 'http://download.tensorflow.org/models/object_detection/'
 
 # Path to frozen detection graph. This is the actual model that is used for the object detection.
-# PATH_TO_CKPT = MODEL_NAME + '/frozen_inference_graph.pb'
-PATH_TO_CKPT = 'checkpoints/excavator/frozen_inference_graph.pb'
+PATH_TO_CKPT = MODEL_NAME + '/frozen_inference_graph.pb'
 
 # List of the strings that is used to add correct label for each box.
-PATH_TO_LABELS = os.path.join('data', 'voc_excavator_label_map.pbtxt')
+PATH_TO_LABELS = os.path.join('data', 'mscoco_label_map.pbtxt')
 
-NUM_CLASSES = 21
+NUM_CLASSES = 90
 
 
 #####################
@@ -99,12 +99,13 @@ def load_image_into_numpy_array(image):
 # image2.jpg
 # If you want to test the code with your images,
 # just add path to the images to the TEST_IMAGE_PATHS.
-PATH_TO_TEST_IMAGES_DIR = '/home/ace19/dl_data/excavator/voc_test'
+PATH_TO_TEST_IMAGES_DIR = '/home/ace19/dl_data/MOT/test/MOT17-01/img1'
 # TEST_IMAGE_PATHS = [ os.path.join(PATH_TO_TEST_IMAGES_DIR, '{}.JPG'.format(i)) for i in range(1, 11) ]
 image_names = os.listdir(PATH_TO_TEST_IMAGES_DIR)
 
 # Size, in inches, of the output images.
 IMAGE_SIZE = (12, 8)
+
 
 def run_inference_for_single_image(image, graph):
   with graph.as_default():
@@ -138,9 +139,13 @@ def run_inference_for_single_image(image, graph):
             detection_masks_reframed, 0)
       image_tensor = tf.get_default_graph().get_tensor_by_name('image_tensor:0')
 
+      start_time = datetime.datetime.now()
       # Run inference
       output_dict = sess.run(tensor_dict,
                              feed_dict={image_tensor: np.expand_dims(image, 0)})
+      end_time = datetime.datetime.now()
+      diff = end_time - start_time
+      print('speed: ', diff)
 
       # all outputs are float32 numpy arrays, so convert types as appropriate
       output_dict['num_detections'] = int(output_dict['num_detections'][0])
@@ -152,6 +157,7 @@ def run_inference_for_single_image(image, graph):
         output_dict['detection_masks'] = output_dict['detection_masks'][0]
   return output_dict
 
+speed = []
 
 for image_name in image_names:
   image = Image.open(os.path.join(PATH_TO_TEST_IMAGES_DIR, image_name))
@@ -161,7 +167,13 @@ for image_name in image_names:
   # Expand dimensions since the model expects images to have shape: [1, None, None, 3]
   image_np_expanded = np.expand_dims(image_np, axis=0)
   # Actual detection.
+
+  # start_time = datetime.datetime.now()
   output_dict = run_inference_for_single_image(image_np, detection_graph)
+  # end_time = datetime.datetime.now()
+  # diff = end_time - start_time
+  # speed.append(diff.total_seconds() * 1000)
+
   # Visualization of the results of a detection.
   vis_util.visualize_boxes_and_labels_on_image_array(
       image_np,
@@ -171,10 +183,17 @@ for image_name in image_names:
       category_index,
       instance_masks=output_dict.get('detection_masks'),
       use_normalized_coordinates=True,
-      line_thickness=10)
+      line_thickness=2)
   plt.figure(figsize=IMAGE_SIZE)
   plt.imshow(image_np)
 
-  # plt.show()
+  plt.show()
 
-  plt.savefig(PATH_TO_TEST_IMAGES_DIR + '/infer_' + image_name[:-4] + '.JPG', dpi=750)  # This does, too
+  # plt.savefig(PATH_TO_TEST_IMAGES_DIR + '/infer_' + image_name[:-4] + '.jpg', dpi=750)  # This does, too
+
+# total = 0
+# len = len(speed)
+# for val in speed:
+#     total += val
+#
+# print('average speed: ', total / len)

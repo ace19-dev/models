@@ -49,17 +49,17 @@ tf.flags.DEFINE_boolean('include_masks', False,
                         '(PNG encoded) in the result. default: False.')
 tf.flags.DEFINE_string('train_image_dir', '',
                        'Training image directory.')
-tf.flags.DEFINE_string('val_image_dir', '',
+tf.flags.DEFINE_string('val_image_dir', '/home/ace19/dl_data/COCO/val2017',
                        'Validation image directory.')
 tf.flags.DEFINE_string('test_image_dir', '',
                        'Test image directory.')
 tf.flags.DEFINE_string('train_annotations_file', '',
                        'Training annotations JSON file.')
-tf.flags.DEFINE_string('val_annotations_file', '',
+tf.flags.DEFINE_string('val_annotations_file', '/home/ace19/dl_data/COCO/annotations/instances_val2017.json',
                        'Validation annotations JSON file.')
 tf.flags.DEFINE_string('testdev_annotations_file', '',
                        'Test-dev annotations JSON file.')
-tf.flags.DEFINE_string('output_dir', '/tmp/', 'Output data directory.')
+tf.flags.DEFINE_string('output_dir', '/home/ace19/dl_data/COCO/tfrecord', 'Output data directory.')
 
 FLAGS = flags.FLAGS
 
@@ -239,12 +239,12 @@ def _create_tf_record_from_coco_annotations(
 
 
 def main(_):
-  assert FLAGS.train_image_dir, '`train_image_dir` missing.'
+  # assert FLAGS.train_image_dir, '`train_image_dir` missing.'
   assert FLAGS.val_image_dir, '`val_image_dir` missing.'
-  assert FLAGS.test_image_dir, '`test_image_dir` missing.'
-  assert FLAGS.train_annotations_file, '`train_annotations_file` missing.'
+  # assert FLAGS.test_image_dir, '`test_image_dir` missing.'
+  # assert FLAGS.train_annotations_file, '`train_annotations_file` missing.'
   assert FLAGS.val_annotations_file, '`val_annotations_file` missing.'
-  assert FLAGS.testdev_annotations_file, '`testdev_annotations_file` missing.'
+  # assert FLAGS.testdev_annotations_file, '`testdev_annotations_file` missing.'
 
   if not tf.gfile.IsDirectory(FLAGS.output_dir):
     tf.gfile.MakeDirs(FLAGS.output_dir)
@@ -252,21 +252,21 @@ def main(_):
   val_output_path = os.path.join(FLAGS.output_dir, 'coco_val.record')
   testdev_output_path = os.path.join(FLAGS.output_dir, 'coco_testdev.record')
 
-  _create_tf_record_from_coco_annotations(
-      FLAGS.train_annotations_file,
-      FLAGS.train_image_dir,
-      train_output_path,
-      FLAGS.include_masks)
+  # _create_tf_record_from_coco_annotations(
+  #     FLAGS.train_annotations_file,
+  #     FLAGS.train_image_dir,
+  #     train_output_path,
+  #     FLAGS.include_masks)
   _create_tf_record_from_coco_annotations(
       FLAGS.val_annotations_file,
       FLAGS.val_image_dir,
       val_output_path,
       FLAGS.include_masks)
-  _create_tf_record_from_coco_annotations(
-      FLAGS.testdev_annotations_file,
-      FLAGS.test_image_dir,
-      testdev_output_path,
-      FLAGS.include_masks)
+  # _create_tf_record_from_coco_annotations(
+  #     FLAGS.testdev_annotations_file,
+  #     FLAGS.test_image_dir,
+  #     testdev_output_path,
+  #     FLAGS.include_masks)
 
 
 if __name__ == '__main__':

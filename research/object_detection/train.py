@@ -68,10 +68,10 @@ flags.DEFINE_integer('worker_replicas', 1, 'Number of worker+trainer '
 flags.DEFINE_integer('ps_tasks', 1,
                      'Number of parameter server tasks. If None, does not use '
                      'a parameter server.')
-flags.DEFINE_string('train_dir', 'checkpoints/excavator',
+flags.DEFINE_string('train_dir', 'checkpoints/mot',
                     'Directory to save the checkpoints and training summaries.')
 
-flags.DEFINE_string('pipeline_config_path', 'models/model/faster_rcnn_resnet101_coco.config',
+flags.DEFINE_string('pipeline_config_path', 'models/model/ssd_inception_v2_coco.config',
                     'Path to a pipeline_pb2.TrainEvalPipelineConfig config '
                     'file. If provided, other configs are ignored')
 
@@ -129,7 +129,7 @@ def main(_):
   task_info = type('TaskSpec', (object,), task_data)
 
   # Parameters for a single worker.
-  ps_tasks = 0
+  # ps_tasks = 0
   worker_replicas = 1
   worker_job_name = 'lonely_worker'
   task = 0
@@ -140,12 +140,12 @@ def main(_):
     # Number of total worker replicas include "worker"s and the "master".
     worker_replicas = len(cluster_data['worker']) + 1
   if cluster_data and 'ps' in cluster_data:
-    ps_tasks = len(cluster_data['ps'])
+    FLAGS.ps_tasks = len(cluster_data['ps'])
 
-  if worker_replicas > 1 and ps_tasks < 1:
+  if worker_replicas > 1 and FLAGS.ps_tasks < 1:
     raise ValueError('At least 1 ps task is needed for distributed training.')
 
-  if worker_replicas >= 1 and ps_tasks > 0:
+  if worker_replicas >= 1 and FLAGS.ps_tasks > 0:
     # Set up distributed training.
     server = tf.train.Server(tf.train.ClusterSpec(cluster), protocol='grpc',
                              job_name=task_info.type,
@@ -173,7 +173,7 @@ def main(_):
       FLAGS.num_clones,
       worker_replicas,
       FLAGS.clone_on_cpu,
-      ps_tasks,
+      FLAGS.ps_tasks,
       worker_job_name,
       is_chief,
       FLAGS.train_dir,

@@ -139,6 +139,8 @@ class TfExampleDecoder(data_decoder.DataDecoder):
         input_reader_pb2.DEFAULT, input_reader_pb2.NUMERICAL, or
         input_reader_pb2.PNG_MASKS.
     """
+
+
     self.keys_to_features = {
         'image/encoded':
             tf.FixedLenFeature((), tf.string, default_value=''),

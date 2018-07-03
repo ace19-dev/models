@@ -61,21 +61,26 @@ tf.logging.set_verbosity(tf.logging.INFO)
 flags = tf.app.flags
 flags.DEFINE_boolean('eval_training_data', False,
                      'If training data should be evaluated for this job.')
-flags.DEFINE_string('checkpoint_dir', 'checkpoints/excavator',
+
+flags.DEFINE_string('checkpoint_dir', 'checkpoints/faster_rcnn_inception_v2_coco',
                     'Directory containing checkpoints to evaluate, typically '
                     'set to `train_dir` used in the training job.')
-flags.DEFINE_string('eval_dir', '',
+
+flags.DEFINE_string('eval_dir', 'checkpoints/faster_rcnn_inception_v2_coco/eval',
                     'Directory to write eval summaries to.')
-flags.DEFINE_string('pipeline_config_path', 'models/model/faster_rcnn_resnet101_coco.config',
+
+flags.DEFINE_string('pipeline_config_path', 'models/model/faster_rcnn_inception_v2_coco.config',
                     'Path to a pipeline_pb2.TrainEvalPipelineConfig config '
                     'file. If provided, other configs are ignored')
+
 flags.DEFINE_string('eval_config_path', '',
                     'Path to an eval_pb2.EvalConfig config file.')
 flags.DEFINE_string('input_config_path', '',
                     'Path to an input_reader_pb2.InputReader config file.')
 flags.DEFINE_string('model_config_path', '',
                     'Path to a model_pb2.DetectionModel config file.')
-flags.DEFINE_boolean('run_once', False, 'Option to only run a single pass of '
+
+flags.DEFINE_boolean('run_once', True, 'Option to only run a single pass of '
                      'evaluation. Overrides the `max_evals` parameter in the '
                      'provided config.')
 FLAGS = flags.FLAGS

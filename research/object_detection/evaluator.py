@@ -193,6 +193,7 @@ def evaluate(create_input_dict_fn, create_model_fn, eval_config, categories,
     on this original_image.
 
     Args:
+    Args:
       tensor_dict: a dictionary of tensors
       sess: tensorflow session
       batch_index: the index of the batch amongst all batches in the run.
