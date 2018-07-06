@@ -24,6 +24,9 @@ from object_detection.utils import label_map_util
 from object_detection.utils import visualization_utils as vis_util
 
 
+os.environ['CUDA_VISIBLE_DEVICES'] = ''
+
+
 ######################################################################
 # Model preparation
 #
@@ -136,16 +139,16 @@ def run_inference_for_single_image(image, graph):
             detection_masks_reframed, 0)
       image_tensor = tf.get_default_graph().get_tensor_by_name('image_tensor:0')
 
-      options = tf.RunOptions(trace_level=tf.RunOptions.FULL_TRACE)
-      run_metadata = tf.RunMetadata()
+      # options = tf.RunOptions(trace_level=tf.RunOptions.FULL_TRACE)
+      # run_metadata = tf.RunMetadata()
       start_time = time.time()
 
       # Run inference
-      # output_dict = sess.run(tensor_dict,
-      #                        feed_dict={image_tensor: np.expand_dims(image, 0)})
       output_dict = sess.run(tensor_dict,
-                             feed_dict={image_tensor: np.expand_dims(image, 0)}, \
-                             options=options, run_metadata=run_metadata)
+                             feed_dict={image_tensor: np.expand_dims(image, 0)})
+      # output_dict = sess.run(tensor_dict,
+      #                        feed_dict={image_tensor: np.expand_dims(image, 0)}, \
+      #                        options=options, run_metadata=run_metadata)
       print('Speed %.3f sec' % (time.time() - start_time))
 
       # all outputs are float32 numpy arrays, so convert types as appropriate
@@ -156,8 +159,8 @@ def run_inference_for_single_image(image, graph):
       output_dict['detection_scores'] = output_dict['detection_scores'][0]
       if 'detection_masks' in output_dict:
         output_dict['detection_masks'] = output_dict['detection_masks'][0]
-  return output_dict, run_metadata
-  # return output_dict
+  # return output_dict, run_metadata
+  return output_dict
 
 speed = []
 
@@ -171,8 +174,8 @@ for image_name in image_names:
   image_np_expanded = np.expand_dims(image_np, axis=0)
 
   # Actual detection.
-  output_dict, run_metadata = run_inference_for_single_image(image_np, detection_graph)
-  # output_dict = run_inference_for_single_image(image_np, detection_graph)
+  # output_dict, run_metadata = run_inference_for_single_image(image_np, detection_graph)
+  output_dict = run_inference_for_single_image(image_np, detection_graph)
 
   # Visualization of the results of a detection.
   vis_util.visualize_boxes_and_labels_on_image_array(
@@ -195,9 +198,9 @@ for image_name in image_names:
 
 # To disable GPU, add below code
 # tf.where and other post-processing operations are running anomaly slow on GPU
-os.environ['CUDA_VISIBLE_DEVICES'] = ''
+# os.environ['CUDA_VISIBLE_DEVICES'] = ''
 
-fetched_timeline = timeline.Timeline(run_metadata.step_stats)
-chrome_trace = fetched_timeline.generate_chrome_trace_format()
-with open('Experiment_1.json', 'w') as f:
-    f.write(chrome_trace)
+# fetched_timeline = timeline.Timeline(run_metadata.step_stats)
+# chrome_trace = fetched_timeline.generate_chrome_trace_format()
+# with open('Experiment_1.json', 'w') as f:
+#     f.write(chrome_trace)
