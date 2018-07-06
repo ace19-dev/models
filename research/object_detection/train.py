@@ -58,14 +58,14 @@ tf.logging.set_verbosity(tf.logging.INFO)
 flags = tf.app.flags
 flags.DEFINE_string('master', '', 'Name of the TensorFlow master to use.')
 flags.DEFINE_integer('task', 0, 'task id')
-flags.DEFINE_integer('num_clones', 2, 'Number of clones to deploy per worker.')
+flags.DEFINE_integer('num_clones', 1, 'Number of clones to deploy per worker.')
 flags.DEFINE_boolean('clone_on_cpu', False,
                      'Force clones to be deployed on CPU.  Note that even if '
                      'set to False (allowing ops to run on gpu), some ops may '
                      'still be run on the CPU if they have no GPU kernel.')
 flags.DEFINE_integer('worker_replicas', 1, 'Number of worker+trainer '
                      'replicas.')
-flags.DEFINE_integer('ps_tasks', 1,
+flags.DEFINE_integer('ps_tasks', 0,
                      'Number of parameter server tasks. If None, does not use '
                      'a parameter server.')
 flags.DEFINE_string('train_dir', 'checkpoints/mot',
@@ -129,7 +129,7 @@ def main(_):
   task_info = type('TaskSpec', (object,), task_data)
 
   # Parameters for a single worker.
-  # ps_tasks = 0
+  ps_tasks = 0
   worker_replicas = 1
   worker_job_name = 'lonely_worker'
   task = 0
@@ -140,12 +140,12 @@ def main(_):
     # Number of total worker replicas include "worker"s and the "master".
     worker_replicas = len(cluster_data['worker']) + 1
   if cluster_data and 'ps' in cluster_data:
-    FLAGS.ps_tasks = len(cluster_data['ps'])
+    ps_tasks = len(cluster_data['ps'])
 
-  if worker_replicas > 1 and FLAGS.ps_tasks < 1:
+  if worker_replicas > 1 and ps_tasks < 1:
     raise ValueError('At least 1 ps task is needed for distributed training.')
 
-  if worker_replicas >= 1 and FLAGS.ps_tasks > 0:
+  if worker_replicas >= 1 and ps_tasks > 0:
     # Set up distributed training.
     server = tf.train.Server(tf.train.ClusterSpec(cluster), protocol='grpc',
                              job_name=task_info.type,
@@ -173,7 +173,7 @@ def main(_):
       FLAGS.num_clones,
       worker_replicas,
       FLAGS.clone_on_cpu,
-      FLAGS.ps_tasks,
+      ps_tasks,
       worker_job_name,
       is_chief,
       FLAGS.train_dir,

@@ -1,19 +1,14 @@
 # Object detection inference
 #
 
-import numpy as np
 import os
-import six.moves.urllib as urllib
-import sys
-import tarfile
-import tensorflow as tf
-import zipfile
-import datetime
+import time
 
-from collections import defaultdict
-from io import StringIO
-from matplotlib import pyplot as plt
+import numpy as np
+import tensorflow as tf
 from PIL import Image
+from matplotlib import pyplot as plt
+from tensorflow.python.client import timeline
 
 # This is needed since the notebook is stored in the object_detection folder.
 # sys.path.append("..")
@@ -37,7 +32,8 @@ from object_detection.utils import visualization_utils as vis_util
 #
 ######################################################################
 # What model to download.
-MODEL_NAME = 'checkpoints/faster_rcnn_resnet101_coco'
+# MODEL_NAME = 'checkpoints/ssd_inception_v2_coco_2017_11_17'
+MODEL_NAME = 'checkpoints/mot'
 # MODEL_FILE = MODEL_NAME + '.tar.gz'
 # DOWNLOAD_BASE = 'http://download.tensorflow.org/models/object_detection/'
 
@@ -45,9 +41,9 @@ MODEL_NAME = 'checkpoints/faster_rcnn_resnet101_coco'
 PATH_TO_CKPT = MODEL_NAME + '/frozen_inference_graph.pb'
 
 # List of the strings that is used to add correct label for each box.
-PATH_TO_LABELS = os.path.join('data', 'mscoco_label_map.pbtxt')
+PATH_TO_LABELS = os.path.join('data', 'mot_label_map.pbtxt')
 
-NUM_CLASSES = 90
+NUM_CLASSES = 1
 
 
 #####################
@@ -91,15 +87,16 @@ def load_image_into_numpy_array(image):
       (im_height, im_width, 3)).astype(np.uint8)
 
 
+
 #################
 # Detection
 #################
 # For the sake of simplicity we will use only 2 images:
 # image1.jpg
 # image2.jpg
-# If you want to test the code with your images,
-# just add path to the images to the TEST_IMAGE_PATHS.
-PATH_TO_TEST_IMAGES_DIR = '/home/ace19/dl_data/MOT/test/MOT17-01/img1'
+# If you want to test the code with your images, just add path to the images to the TEST_IMAGE_PATHS.
+# PATH_TO_TEST_IMAGES_DIR = '/home/ace19/dl_data/MOT/MOT17/test/MOT17-01/img1'
+PATH_TO_TEST_IMAGES_DIR = '/home/ace19/dl_data/MOT/MOT17/test/tmp'
 # TEST_IMAGE_PATHS = [ os.path.join(PATH_TO_TEST_IMAGES_DIR, '{}.JPG'.format(i)) for i in range(1, 11) ]
 image_names = os.listdir(PATH_TO_TEST_IMAGES_DIR)
 
@@ -139,13 +136,17 @@ def run_inference_for_single_image(image, graph):
             detection_masks_reframed, 0)
       image_tensor = tf.get_default_graph().get_tensor_by_name('image_tensor:0')
 
-      start_time = datetime.datetime.now()
+      options = tf.RunOptions(trace_level=tf.RunOptions.FULL_TRACE)
+      run_metadata = tf.RunMetadata()
+      start_time = time.time()
+
       # Run inference
+      # output_dict = sess.run(tensor_dict,
+      #                        feed_dict={image_tensor: np.expand_dims(image, 0)})
       output_dict = sess.run(tensor_dict,
-                             feed_dict={image_tensor: np.expand_dims(image, 0)})
-      end_time = datetime.datetime.now()
-      diff = end_time - start_time
-      print('speed: ', diff)
+                             feed_dict={image_tensor: np.expand_dims(image, 0)}, \
+                             options=options, run_metadata=run_metadata)
+      print('Speed %.3f sec' % (time.time() - start_time))
 
       # all outputs are float32 numpy arrays, so convert types as appropriate
       output_dict['num_detections'] = int(output_dict['num_detections'][0])
@@ -155,7 +156,8 @@ def run_inference_for_single_image(image, graph):
       output_dict['detection_scores'] = output_dict['detection_scores'][0]
       if 'detection_masks' in output_dict:
         output_dict['detection_masks'] = output_dict['detection_masks'][0]
-  return output_dict
+  return output_dict, run_metadata
+  # return output_dict
 
 speed = []
 
@@ -164,15 +166,13 @@ for image_name in image_names:
   # the array based representation of the image will be used later in order to prepare the
   # result image with boxes and labels on it.
   image_np = load_image_into_numpy_array(image)
+
   # Expand dimensions since the model expects images to have shape: [1, None, None, 3]
   image_np_expanded = np.expand_dims(image_np, axis=0)
-  # Actual detection.
 
-  # start_time = datetime.datetime.now()
-  output_dict = run_inference_for_single_image(image_np, detection_graph)
-  # end_time = datetime.datetime.now()
-  # diff = end_time - start_time
-  # speed.append(diff.total_seconds() * 1000)
+  # Actual detection.
+  output_dict, run_metadata = run_inference_for_single_image(image_np, detection_graph)
+  # output_dict = run_inference_for_single_image(image_np, detection_graph)
 
   # Visualization of the results of a detection.
   vis_util.visualize_boxes_and_labels_on_image_array(
@@ -189,11 +189,15 @@ for image_name in image_names:
 
   plt.show()
 
-  # plt.savefig(PATH_TO_TEST_IMAGES_DIR + '/infer_' + image_name[:-4] + '.jpg', dpi=750)  # This does, too
+  # save image
+  # plt.savefig(PATH_TO_TEST_IMAGES_DIR + '/infer_' + image_name[:-4] + '.jpg', dpi=750)
 
-# total = 0
-# len = len(speed)
-# for val in speed:
-#     total += val
-#
-# print('average speed: ', total / len)
+
+# To disable GPU, add below code
+# tf.where and other post-processing operations are running anomaly slow on GPU
+os.environ['CUDA_VISIBLE_DEVICES'] = ''
+
+fetched_timeline = timeline.Timeline(run_metadata.step_stats)
+chrome_trace = fetched_timeline.generate_chrome_trace_format()
+with open('Experiment_1.json', 'w') as f:
+    f.write(chrome_trace)
