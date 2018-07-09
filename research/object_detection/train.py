@@ -129,7 +129,7 @@ def main(_):
 
   # Parameters for a single worker.
   ps_tasks = 0
-  worker_replicas = 1
+  worker_replicas = 0
   worker_job_name = 'lonely_worker'
   task = 0
   is_chief = True
