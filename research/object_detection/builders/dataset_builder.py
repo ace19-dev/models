@@ -130,9 +130,9 @@ def build(input_reader_config, batch_size=None, transform_input_data_fn=None):
     decoder = tf_example_decoder.TfExampleDecoder(
         load_instance_masks=input_reader_config.load_instance_masks,
         instance_mask_type=input_reader_config.mask_type,
-        label_map_proto_file=label_map_proto_file,
+        label_map_proto_file=label_map_proto_file,)
         # use_display_name=input_reader_config.use_display_name,
-        num_additional_channels=input_reader_config.num_additional_channels)
+        # num_additional_channels=input_reader_config.num_additional_channels)
 
     def process_fn(value):
       """Sets up tf graph that decodes, transforms and pads input data."""

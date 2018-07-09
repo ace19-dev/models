@@ -267,12 +267,12 @@ class TfExampleDecoder(data_decoder.DataDecoder):
           slim_example_decoder.Tensor('image/object/class/label'))
       image_label_handler = BackupHandler(
           LookupTensor(
-              fields.TfExampleFields.image_class_text, table, default_value=''),
-          slim_example_decoder.Tensor(fields.TfExampleFields.image_class_label))
+              fields.TfExampleFields.object_class_text, table, default_value=''),
+          slim_example_decoder.Tensor(fields.TfExampleFields.object_class_label))
     else:
       label_handler = slim_example_decoder.Tensor('image/object/class/label')
       image_label_handler = slim_example_decoder.Tensor(
-          fields.TfExampleFields.image_class_label)
+          fields.TfExampleFields.object_class_label)
     self.items_to_handlers[
         fields.InputDataFields.groundtruth_classes] = label_handler
     self.items_to_handlers[
