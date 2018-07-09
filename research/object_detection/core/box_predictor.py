@@ -765,6 +765,13 @@ class ConvolutionalBoxPredictor(BoxPredictor):
     }
 
 
+# TODO(rathodv): Replace with slim.arg_scope_func_key once its available
+# externally.
+def _arg_scope_func_key(op):
+  """Returns a key that can be used to index arg_scope dictionary."""
+  return getattr(op, '_key_op', str(op))
+
+
 # TODO(rathodv): Merge the implementation with ConvolutionalBoxPredictor above
 # since they are very similar.
 class WeightSharedConvolutionalBoxPredictor(BoxPredictor):
@@ -865,17 +872,6 @@ class WeightSharedConvolutionalBoxPredictor(BoxPredictor):
                       'of {}'.format(feature_channels, target_channel))
     box_encodings_list = []
     class_predictions_list = []
-<<<<<<< HEAD
-    for (image_feature, num_predictions_per_location) in zip(
-        image_features, num_predictions_per_location_list):
-      # Add a slot for the background class.
-      with tf.variable_scope('WeightSharedConvolutionalBoxPredictor',
-                             reuse=tf.AUTO_REUSE):
-        num_class_slots = self.num_classes + 1
-        box_encodings_net = image_feature
-        class_predictions_net = image_feature
-        with slim.arg_scope(self._conv_hyperparams_fn()):
-=======
     num_class_slots = self.num_classes + 1
     for feature_index, (image_feature,
                         num_predictions_per_location) in enumerate(
@@ -906,7 +902,6 @@ class WeightSharedConvolutionalBoxPredictor(BoxPredictor):
             inserted_layer_counter += 1
           box_encodings_net = image_feature
           class_predictions_net = image_feature
->>>>>>> upstream/master
           for i in range(self._num_layers_before_predictor):
             box_encodings_net = slim.conv2d(
                 box_encodings_net,

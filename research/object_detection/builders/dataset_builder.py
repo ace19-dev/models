@@ -44,69 +44,6 @@ def make_initializable_iterator(dataset):
   tf.add_to_collection(tf.GraphKeys.TABLE_INITIALIZERS, iterator.initializer)
   return iterator
 
-<<<<<<< HEAD
-  if not spatial_image_shape or spatial_image_shape == [-1, -1]:
-    height, width = None, None
-  else:
-    height, width = spatial_image_shape  # pylint: disable=unpacking-non-sequence
-
-  padding_shapes = {
-      fields.InputDataFields.image: [height, width, 3],
-      fields.InputDataFields.source_id: [],
-      fields.InputDataFields.filename: [],
-      fields.InputDataFields.key: [],
-      fields.InputDataFields.groundtruth_difficult: [max_num_boxes],
-      fields.InputDataFields.groundtruth_boxes: [max_num_boxes, 4],
-      fields.InputDataFields.groundtruth_instance_masks: [max_num_boxes, height,
-                                                          width],
-      fields.InputDataFields.groundtruth_is_crowd: [max_num_boxes],
-      fields.InputDataFields.groundtruth_group_of: [max_num_boxes],
-      fields.InputDataFields.groundtruth_area: [max_num_boxes],
-      fields.InputDataFields.groundtruth_weights: [max_num_boxes],
-      fields.InputDataFields.num_groundtruth_boxes: [],
-      fields.InputDataFields.groundtruth_label_types: [max_num_boxes],
-      fields.InputDataFields.groundtruth_label_scores: [max_num_boxes],
-      fields.InputDataFields.true_image_shape: [3],
-      fields.InputDataFields.multiclass_scores: [
-          max_num_boxes, num_classes + 1 if num_classes is not None else None],
-  }
-  # Determine whether groundtruth_classes are integers or one-hot encodings, and
-  # apply batching appropriately.
-  classes_shape = dataset.output_shapes[
-      fields.InputDataFields.groundtruth_classes]
-  if len(classes_shape) == 1:  # Class integers.
-    padding_shapes[fields.InputDataFields.groundtruth_classes] = [max_num_boxes]
-  elif len(classes_shape) == 2:  # One-hot or k-hot encoding.
-    padding_shapes[fields.InputDataFields.groundtruth_classes] = [
-        max_num_boxes, num_classes]
-  else:
-    raise ValueError('Groundtruth classes must be a rank 1 tensor (classes) or '
-                     'rank 2 tensor (one-hot encodings)')
-
-  if fields.InputDataFields.original_image in dataset.output_shapes:
-    padding_shapes[fields.InputDataFields.original_image] = [None, None, 3]
-  if fields.InputDataFields.groundtruth_keypoints in dataset.output_shapes:
-    tensor_shape = dataset.output_shapes[fields.InputDataFields.
-                                         groundtruth_keypoints]
-    padding_shape = [max_num_boxes, tensor_shape[1].value,
-                     tensor_shape[2].value]
-    padding_shapes[fields.InputDataFields.groundtruth_keypoints] = padding_shape
-  if (fields.InputDataFields.groundtruth_keypoint_visibilities
-      in dataset.output_shapes):
-    tensor_shape = dataset.output_shapes[fields.InputDataFields.
-                                         groundtruth_keypoint_visibilities]
-    padding_shape = [max_num_boxes, tensor_shape[1].value]
-    padding_shapes[fields.InputDataFields.
-                   groundtruth_keypoint_visibilities] = padding_shape
-  return {tensor_key: padding_shapes[tensor_key]
-          for tensor_key, _ in dataset.output_shapes.items()}
-
-
-def build(input_reader_config, transform_input_data_fn=None,
-          batch_size=None, max_num_boxes=None, num_classes=None,
-          spatial_image_shape=None):
-=======
-
 def read_dataset(file_read_func, input_files, config):
   """Reads a dataset, and handles repetition and shuffling.
 
@@ -146,7 +83,6 @@ def read_dataset(file_read_func, input_files, config):
 
 
 def build(input_reader_config, batch_size=None, transform_input_data_fn=None):
->>>>>>> upstream/master
   """Builds a tf.data.Dataset.
 
   Builds a tf.data.Dataset by applying the `transform_input_data_fn` on all
@@ -194,13 +130,9 @@ def build(input_reader_config, batch_size=None, transform_input_data_fn=None):
     decoder = tf_example_decoder.TfExampleDecoder(
         load_instance_masks=input_reader_config.load_instance_masks,
         instance_mask_type=input_reader_config.mask_type,
-<<<<<<< HEAD
-        label_map_proto_file=label_map_proto_file)
-=======
         label_map_proto_file=label_map_proto_file,
-        use_display_name=input_reader_config.use_display_name,
+        # use_display_name=input_reader_config.use_display_name,
         num_additional_channels=input_reader_config.num_additional_channels)
->>>>>>> upstream/master
 
     def process_fn(value):
       """Sets up tf graph that decodes, transforms and pads input data."""

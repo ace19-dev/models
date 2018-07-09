@@ -278,6 +278,19 @@ def get_learning_rate_type(optimizer_config):
   return optimizer_config.learning_rate.WhichOneof("learning_rate")
 
 
+def _is_generic_key(key):
+  """Determines whether the key starts with a generic config dictionary key."""
+  for prefix in [
+      "graph_rewriter_config",
+      "model",
+      "train_input_config",
+      "train_input_config",
+      "train_config"]:
+    if key.startswith(prefix + "."):
+      return True
+  return False
+
+
 def merge_external_params_with_configs(configs, hparams=None, **kwargs):
   """Updates `configs` dictionary based on supplied parameters.
 
@@ -339,9 +352,6 @@ def merge_external_params_with_configs(configs, hparams=None, **kwargs):
       tf.logging.info("Overwriting label map path: %s", value)
     if key == "mask_type":
       _update_mask_type(configs, value)
-<<<<<<< HEAD
-      tf.logging.info("Overwritten mask type: %s", value)
-=======
     elif key == "eval_with_moving_averages":
       _update_use_moving_averages(configs, value)
     elif key == "train_shuffle":
@@ -354,7 +364,6 @@ def merge_external_params_with_configs(configs, hparams=None, **kwargs):
       _update_generic(configs, key, value)
     else:
       tf.logging.info("Ignoring config override key: %s", key)
->>>>>>> upstream/master
   return configs
 
 
@@ -424,6 +433,36 @@ def _update_batch_size(configs, batch_size):
       are rounded, and capped to be 1 or greater.
   """
   configs["train_config"].batch_size = max(1, int(round(batch_size)))
+
+
+def _validate_message_has_field(message, field):
+  if not message.HasField(field):
+    raise ValueError("Expecting message to have field %s" % field)
+
+
+def _update_generic(configs, key, value):
+  """Update a pipeline configuration parameter based on a generic key/value.
+  Args:
+    configs: Dictionary of pipeline configuration protos.
+    key: A string key, dot-delimited to represent the argument key.
+      e.g. "model.ssd.train_config.batch_size"
+    value: A value to set the argument to. The type of the value must match the
+      type for the protocol buffer. Note that setting the wrong type will
+      result in a TypeError.
+      e.g. 42
+  Raises:
+    ValueError if the message key does not match the existing proto fields.
+    TypeError the value type doesn't match the protobuf field type.
+  """
+  fields = key.split(".")
+  first_field = fields.pop(0)
+  last_field = fields.pop()
+  message = configs[first_field]
+  for field in fields:
+    _validate_message_has_field(message, field)
+    message = getattr(message, field)
+  _validate_message_has_field(message, last_field)
+  setattr(message, last_field, value)
 
 
 def _update_momentum_optimizer_value(configs, momentum):
@@ -602,9 +641,6 @@ def _update_mask_type(configs, mask_type):
   """
   configs["train_input_config"].mask_type = mask_type
   configs["eval_input_config"].mask_type = mask_type
-<<<<<<< HEAD
-=======
-
 
 def _update_use_moving_averages(configs, use_moving_averages):
   """Updates the eval config option to use or not use moving averages.
@@ -643,4 +679,3 @@ def _update_retain_original_images(eval_config, retain_original_images):
       in eval mode.
   """
   eval_config.retain_original_images = retain_original_images
->>>>>>> upstream/master

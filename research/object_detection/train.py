@@ -70,7 +70,7 @@ flags.DEFINE_integer('ps_tasks', 0,
 flags.DEFINE_string('train_dir', 'checkpoints/mot',
                     'Directory to save the checkpoints and training summaries.')
 
-flags.DEFINE_string('pipeline_config_path', 'models/model/ssd_inception_v2_coco.config',
+flags.DEFINE_string('pipeline_config_path', 'models/model/faster_rcnn_resnet50_coco.config',
                     'Path to a pipeline_pb2.TrainEvalPipelineConfig config '
                     'file. If provided, other configs are ignored')
 
