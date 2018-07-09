@@ -117,6 +117,19 @@ class TfExampleDecoderTest(tf.test.TestCase):
         object_group_of,
         results_dict[fields.InputDataFields.groundtruth_group_of])
 
+<<<<<<< HEAD
+=======
+    features[fields.TfExampleFields.image_class_label] = (
+        self._Int64Feature(verified_labels))
+
+    example = tf.train.Example(features=tf.train.Features(feature=features))
+    results_dict = parser.parse(example)
+    self.assertIsNotNone(results_dict)
+    np_testing.assert_equal(
+        verified_labels,
+        results_dict[fields.InputDataFields.groundtruth_image_classes])
+
+>>>>>>> upstream/master
   def testParseString(self):
     string_val = 'abc'
     features = {'string': self._BytesFeature(string_val)}

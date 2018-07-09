@@ -18,12 +18,12 @@
 import os
 import tensorflow as tf
 
-from object_detection.protos import input_reader_pb2
 from object_detection.utils import dataset_util
 
 
 class DatasetUtilTest(tf.test.TestCase):
 
+<<<<<<< HEAD
   def setUp(self):
     self._path_template = os.path.join(self.get_temp_dir(), 'examples_%s.txt')
 
@@ -41,6 +41,8 @@ class DatasetUtilTest(tf.test.TestCase):
     dataset = dataset.batch(batch_size)
     return dataset.make_one_shot_iterator().get_next()
 
+=======
+>>>>>>> upstream/master
   def test_read_examples_list(self):
     example_list_data = """example1 1\nexample2 2"""
     example_list_path = os.path.join(self.get_temp_dir(), 'examples.txt')
@@ -50,6 +52,7 @@ class DatasetUtilTest(tf.test.TestCase):
     examples = dataset_util.read_examples_list(example_list_path)
     self.assertListEqual(['example1', 'example2'], examples)
 
+<<<<<<< HEAD
   def test_make_initializable_iterator_with_hashTable(self):
     keys = [1, 0, -1]
     dataset = tf.data.Dataset.from_tensor_slices([[1, 2, -1, 5]])
@@ -91,6 +94,8 @@ class DatasetUtilTest(tf.test.TestCase):
       self.assertAllEqual(sess.run(data), [[1, 10]])
       self.assertRaises(tf.errors.OutOfRangeError, sess.run, data)
 
+=======
+>>>>>>> upstream/master
 
 if __name__ == '__main__':
   tf.test.main()

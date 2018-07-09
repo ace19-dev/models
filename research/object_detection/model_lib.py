@@ -98,7 +98,7 @@ def unstack_batch(tensor_dict, unpad_groundtruth_tensors=True):
   """Unstacks all tensors in `tensor_dict` along 0th dimension.
 
   Unstacks tensor from the tensor dict along 0th dimension and returns a
-  tensor_dict containing values that are lists of unstacked tensors.
+  tensor_dict containing values that are lists of unstacked, unpadded tensors.
 
   Tensors in the `tensor_dict` are expected to be of one of the three shapes:
   1. [batch_size]
@@ -243,8 +243,9 @@ def create_model_fn(detection_model_fn, configs, hparams, use_tpu=False):
     preprocessed_images = features[fields.InputDataFields.image]
     prediction_dict = detection_model.predict(
         preprocessed_images, features[fields.InputDataFields.true_image_shape])
-    detections = detection_model.postprocess(
-        prediction_dict, features[fields.InputDataFields.true_image_shape])
+    if mode in (tf.estimator.ModeKeys.EVAL, tf.estimator.ModeKeys.PREDICT):
+      detections = detection_model.postprocess(
+          prediction_dict, features[fields.InputDataFields.true_image_shape])
 
     if mode == tf.estimator.ModeKeys.TRAIN:
       if train_config.fine_tune_checkpoint and hparams.load_pretrained:
@@ -382,7 +383,22 @@ def create_model_fn(detection_model_fn, configs, hparams, use_tpu=False):
             img_summary, tf.no_op())
       eval_metric_ops = {str(k): v for k, v in eval_metric_ops.iteritems()}
 
+<<<<<<< HEAD
     if use_tpu:
+=======
+      if eval_config.use_moving_averages:
+        variable_averages = tf.train.ExponentialMovingAverage(0.0)
+        variables_to_restore = variable_averages.variables_to_restore()
+        keep_checkpoint_every_n_hours = (
+            train_config.keep_checkpoint_every_n_hours)
+        saver = tf.train.Saver(
+            variables_to_restore,
+            keep_checkpoint_every_n_hours=keep_checkpoint_every_n_hours)
+        scaffold = tf.train.Scaffold(saver=saver)
+
+    # EVAL executes on CPU, so use regular non-TPU EstimatorSpec.
+    if use_tpu and mode != tf.estimator.ModeKeys.EVAL:
+>>>>>>> upstream/master
       return tf.contrib.tpu.TPUEstimatorSpec(
           mode=mode,
           scaffold_fn=scaffold_fn,
@@ -472,6 +488,7 @@ def create_estimator_and_inputs(run_config,
       hparams,
       train_steps=train_steps,
       eval_steps=eval_steps,
+      retain_original_images_in_eval=False if use_tpu else True,
       **kwargs)
   model_config = configs['model']
   train_config = configs['train_config']
@@ -501,8 +518,10 @@ def create_estimator_and_inputs(run_config,
       eval_config=eval_config,
       eval_input_config=train_input_config,
       model_config=model_config)
-  predict_input_fn = create_predict_input_fn(model_config=model_config)
+  predict_input_fn = create_predict_input_fn(
+      model_config=model_config, predict_input_config=eval_input_config)
 
+  tf.logging.info('create_estimator_and_inputs: use_tpu %s', use_tpu)
   model_fn = model_fn_creator(detection_model_fn, configs, hparams, use_tpu)
   if use_tpu_estimator:
     estimator = tf.contrib.tpu.TPUEstimator(
@@ -512,6 +531,7 @@ def create_estimator_and_inputs(run_config,
         eval_batch_size=num_shards * 1 if use_tpu else 1,
         use_tpu=use_tpu,
         config=run_config,
+        # TODO(lzc): Remove conditional after CMLE moves to TF 1.9
         params=params if params else {})
   else:
     estimator = tf.estimator.Estimator(model_fn=model_fn, config=run_config)
