@@ -35,8 +35,8 @@ from object_detection.utils import visualization_utils as vis_util
 #
 ######################################################################
 # What model to download.
-# MODEL_NAME = 'checkpoints/faster_rcnn_resnet50_coco_2018_01_28'
-MODEL_NAME = 'checkpoints/mot'
+MODEL_NAME = 'checkpoints/faster_rcnn_resnet50_coco_2018_01_28'
+# MODEL_NAME = 'checkpoints/mot'
 # MODEL_FILE = MODEL_NAME + '.tar.gz'
 # DOWNLOAD_BASE = 'http://download.tensorflow.org/models/object_detection/'
 
