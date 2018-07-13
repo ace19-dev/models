@@ -90,22 +90,9 @@ def build(input_reader_config, batch_size=None, transform_input_data_fn=None):
 
   Args:
     input_reader_config: A input_reader_pb2.InputReader object.
-<<<<<<< HEAD
-    transform_input_data_fn: Function to apply to all records, or None if
-      no extra decoding is required.
-    batch_size: Batch size. If None, batching is not performed.
-    max_num_boxes: Max number of groundtruth boxes needed to compute shapes for
-      padding. If None, will use a dynamic shape.
-    num_classes: Number of classes in the dataset needed to compute shapes for
-      padding. If None, will use a dynamic shape.
-    spatial_image_shape: A list of two integers of the form [height, width]
-      containing expected spatial shape of the image after applying
-      transform_input_data_fn. If None, will use dynamic shapes.
-=======
     batch_size: Batch size. If batch size is None, no batching is performed.
     transform_input_data_fn: Function to apply transformation to all records,
       or None if no extra decoding is required.
->>>>>>> upstream/master
 
   Returns:
     A tf.data.Dataset based on the input_reader_config.

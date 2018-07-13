@@ -88,8 +88,6 @@ def transform_input_data(tensor_dict,
     A dictionary keyed by fields.InputDataFields containing the tensors obtained
     after applying all the transformations.
   """
-<<<<<<< HEAD
-=======
   if fields.InputDataFields.groundtruth_boxes in tensor_dict:
     tensor_dict = util_ops.filter_groundtruth_with_nan_box_coordinates(
         tensor_dict)
@@ -98,7 +96,6 @@ def transform_input_data(tensor_dict,
     tensor_dict[fields.InputDataFields.image] = tf.concat(
         [tensor_dict[fields.InputDataFields.image], channels], axis=2)
 
->>>>>>> upstream/master
   if retain_original_image:
     tensor_dict[fields.InputDataFields.original_image] = tf.cast(
         tensor_dict[fields.InputDataFields.image], tf.uint8)
