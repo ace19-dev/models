@@ -113,7 +113,7 @@ flags.DEFINE_string('input_shape', None,
 flags.DEFINE_string('pipeline_config_path', 'models/model/faster_rcnn_resnet50_coco.config',
                     'Path to a pipeline_pb2.TrainEvalPipelineConfig config '
                     'file.')
-flags.DEFINE_string('trained_checkpoint_prefix', 'checkpoints/mot/model.ckpt-47683',
+flags.DEFINE_string('trained_checkpoint_prefix', 'checkpoints/mot/model.ckpt-52103',
                     'Path to trained checkpoint, typically of the form '
                     'path/to/model.ckpt')
 flags.DEFINE_string('output_directory', 'checkpoints/mot',
