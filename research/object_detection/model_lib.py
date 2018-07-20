@@ -383,9 +383,6 @@ def create_model_fn(detection_model_fn, configs, hparams, use_tpu=False):
             img_summary, tf.no_op())
       eval_metric_ops = {str(k): v for k, v in eval_metric_ops.iteritems()}
 
-<<<<<<< HEAD
-    if use_tpu:
-=======
       if eval_config.use_moving_averages:
         variable_averages = tf.train.ExponentialMovingAverage(0.0)
         variables_to_restore = variable_averages.variables_to_restore()
@@ -398,7 +395,6 @@ def create_model_fn(detection_model_fn, configs, hparams, use_tpu=False):
 
     # EVAL executes on CPU, so use regular non-TPU EstimatorSpec.
     if use_tpu and mode != tf.estimator.ModeKeys.EVAL:
->>>>>>> upstream/master
       return tf.contrib.tpu.TPUEstimatorSpec(
           mode=mode,
           scaffold_fn=scaffold_fn,
