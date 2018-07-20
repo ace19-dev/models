@@ -13,7 +13,6 @@
 # limitations under the License.
 # ==============================================================================
 """object_detection_evaluation module.
-
 ObjectDetectionEvaluation is a class which manages ground truth information of a
 object detection dataset, and computes frequently used detection metrics such as
 Precision, Recall, CorLoc of the provided detection results.
@@ -23,7 +22,6 @@ It supports the following operations:
 3) Evaluate detection metrics on already inserted detection results.
 4) Write evaluation result into a pickle file for future processing or
    visualization.
-
 Note: This module operates on numpy boxes and box lists.
 """
 
@@ -41,26 +39,21 @@ from object_detection.utils import per_image_evaluation
 
 class DetectionEvaluator(object):
   """Interface for object detection evalution classes.
-
   Example usage of the Evaluator:
   ------------------------------
   evaluator = DetectionEvaluator(categories)
-
   # Detections and groundtruth for image 1.
   evaluator.add_single_groundtruth_image_info(...)
   evaluator.add_single_detected_image_info(...)
-
   # Detections and groundtruth for image 2.
   evaluator.add_single_groundtruth_image_info(...)
   evaluator.add_single_detected_image_info(...)
-
   metrics_dict = evaluator.evaluate()
   """
   __metaclass__ = ABCMeta
 
   def __init__(self, categories):
     """Constructor.
-
     Args:
       categories: A list of dicts, each of which has the following keys -
         'id': (required) an integer id uniquely identifying this category.
@@ -71,7 +64,6 @@ class DetectionEvaluator(object):
   @abstractmethod
   def add_single_ground_truth_image_info(self, image_id, groundtruth_dict):
     """Adds groundtruth for a single image to be used for evaluation.
-
     Args:
       image_id: A unique string/integer identifier for the image.
       groundtruth_dict: A dictionary of groundtruth numpy arrays required
@@ -82,7 +74,6 @@ class DetectionEvaluator(object):
   @abstractmethod
   def add_single_detected_image_info(self, image_id, detections_dict):
     """Adds detections for a single image to be used for evaluation.
-
     Args:
       image_id: A unique string/integer identifier for the image.
       detections_dict: A dictionary of detection numpy arrays required
@@ -113,7 +104,6 @@ class ObjectDetectionEvaluator(DetectionEvaluator):
                evaluate_masks=False,
                group_of_weight=0.0):
     """Constructor.
-
     Args:
       categories: A list of dicts, each of which has the following keys -
         'id': (required) an integer id uniquely identifying this category.
@@ -135,7 +125,6 @@ class ObjectDetectionEvaluator(DetectionEvaluator):
         matching_iou_threshold, weight group_of_weight is added to true
         positives. Consequently, if no detection falls within a group-of box,
         weight group_of_weight is added to false negatives.
-
     Raises:
       ValueError: If the category ids are not 1-indexed.
     """
@@ -160,7 +149,6 @@ class ObjectDetectionEvaluator(DetectionEvaluator):
 
   def add_single_ground_truth_image_info(self, image_id, groundtruth_dict):
     """Adds groundtruth for a single image to be used for evaluation.
-
     Args:
       image_id: A unique string/integer identifier for the image.
       groundtruth_dict: A dictionary containing -
@@ -176,7 +164,6 @@ class ObjectDetectionEvaluator(DetectionEvaluator):
           that no boxes are difficult.
         standard_fields.InputDataFields.groundtruth_instance_masks: Optional
           numpy array of shape [num_boxes, height, width] with values in {0, 1}.
-
     Raises:
       ValueError: On adding groundtruth for an image more than once. Will also
         raise error if instance masks are not in groundtruth dictionary.
@@ -220,7 +207,6 @@ class ObjectDetectionEvaluator(DetectionEvaluator):
 
   def add_single_detected_image_info(self, image_id, detections_dict):
     """Adds detections for a single image to be used for evaluation.
-
     Args:
       image_id: A unique string/integer identifier for the image.
       detections_dict: A dictionary containing -
@@ -235,7 +221,6 @@ class ObjectDetectionEvaluator(DetectionEvaluator):
         standard_fields.DetectionResultFields.detection_masks: uint8 numpy
           array of shape [num_boxes, height, width] containing `num_boxes` masks
           of values ranging between 0 and 1.
-
     Raises:
       ValueError: If detection masks are not in detections dictionary.
     """
@@ -260,14 +245,11 @@ class ObjectDetectionEvaluator(DetectionEvaluator):
 
   def evaluate(self):
     """Compute evaluation result.
-
     Returns:
       A dictionary of metrics with the following fields -
-
       1. summary_metrics:
         'Precision/mAP@<matching_iou_threshold>IOU': mean average precision at
         the specified IOU threshold.
-
       2. per_category_ap: category specific results with keys of the form
         'PerformanceByCategory/mAP@<matching_iou_threshold>IOU/category'.
     """
@@ -324,12 +306,10 @@ class PascalDetectionEvaluator(ObjectDetectionEvaluator):
 
 class WeightedPascalDetectionEvaluator(ObjectDetectionEvaluator):
   """A class to evaluate detections using weighted PASCAL metrics.
-
   Weighted PASCAL metrics computes the mean average precision as the average
   precision given the scores and tp_fp_labels of all classes. In comparison,
   PASCAL metrics computes the mean average precision as the mean of the
   per-class average precisions.
-
   This definition is very similar to the mean of the per-class average
   precisions weighted by class frequency. However, they are typically not the
   same as the average precision is not a linear function of the scores and
@@ -360,12 +340,10 @@ class PascalInstanceSegmentationEvaluator(ObjectDetectionEvaluator):
 
 class WeightedPascalInstanceSegmentationEvaluator(ObjectDetectionEvaluator):
   """A class to evaluate instance masks using weighted PASCAL metrics.
-
   Weighted PASCAL metrics computes the mean average precision as the average
   precision given the scores and tp_fp_labels of all classes. In comparison,
   PASCAL metrics computes the mean average precision as the mean of the
   per-class average precisions.
-
   This definition is very similar to the mean of the per-class average
   precisions weighted by class frequency. However, they are typically not the
   same as the average precision is not a linear function of the scores and
@@ -384,7 +362,6 @@ class WeightedPascalInstanceSegmentationEvaluator(ObjectDetectionEvaluator):
 
 class OpenImagesDetectionEvaluator(ObjectDetectionEvaluator):
   """A class to evaluate detections using Open Images V2 metrics.
-
     Open Images V2 introduce group_of type of bounding boxes and this metric
     handles those boxes appropriately.
   """
@@ -396,7 +373,6 @@ class OpenImagesDetectionEvaluator(ObjectDetectionEvaluator):
                metric_prefix='OpenImagesV2',
                group_of_weight=0.0):
     """Constructor.
-
     Args:
       categories: A list of dicts, each of which has the following keys -
         'id': (required) an integer id uniquely identifying this category.
@@ -422,7 +398,6 @@ class OpenImagesDetectionEvaluator(ObjectDetectionEvaluator):
 
   def add_single_ground_truth_image_info(self, image_id, groundtruth_dict):
     """Adds groundtruth for a single image to be used for evaluation.
-
     Args:
       image_id: A unique string/integer identifier for the image.
       groundtruth_dict: A dictionary containing -
@@ -435,7 +410,6 @@ class OpenImagesDetectionEvaluator(ObjectDetectionEvaluator):
         standard_fields.InputDataFields.groundtruth_group_of: Optional length
           M numpy boolean array denoting whether a groundtruth box contains a
           group of instances.
-
     Raises:
       ValueError: On adding groundtruth for an image more than once.
     """
@@ -471,7 +445,6 @@ class OpenImagesDetectionEvaluator(ObjectDetectionEvaluator):
 
 class OpenImagesDetectionChallengeEvaluator(OpenImagesDetectionEvaluator):
   """A class implements Open Images Challenge Detection metrics.
-
     Open Images Challenge Detection metric has two major changes in comparison
     with Open Images V2 detection metric:
     - a custom weight might be specified for detecting an object contained in
@@ -488,7 +461,6 @@ class OpenImagesDetectionChallengeEvaluator(OpenImagesDetectionEvaluator):
                evaluate_corlocs=False,
                group_of_weight=1.0):
     """Constructor.
-
     Args:
       categories: A list of dicts, each of which has the following keys -
         'id': (required) an integer id uniquely identifying this category.
@@ -515,7 +487,6 @@ class OpenImagesDetectionChallengeEvaluator(OpenImagesDetectionEvaluator):
 
   def add_single_ground_truth_image_info(self, image_id, groundtruth_dict):
     """Adds groundtruth for a single image to be used for evaluation.
-
     Args:
       image_id: A unique string/integer identifier for the image.
       groundtruth_dict: A dictionary containing -
@@ -530,7 +501,6 @@ class OpenImagesDetectionChallengeEvaluator(OpenImagesDetectionEvaluator):
         standard_fields.InputDataFields.groundtruth_group_of: Optional length
           M numpy boolean array denoting whether a groundtruth box contains a
           group of instances.
-
     Raises:
       ValueError: On adding groundtruth for an image more than once.
     """
@@ -547,7 +517,6 @@ class OpenImagesDetectionChallengeEvaluator(OpenImagesDetectionEvaluator):
 
   def add_single_detected_image_info(self, image_id, detections_dict):
     """Adds detections for a single image to be used for evaluation.
-
     Args:
       image_id: A unique string/integer identifier for the image.
       detections_dict: A dictionary containing -
@@ -559,7 +528,6 @@ class OpenImagesDetectionChallengeEvaluator(OpenImagesDetectionEvaluator):
         standard_fields.DetectionResultFields.detection_classes: integer numpy
           array of shape [num_boxes] containing 1-indexed detection classes for
           the boxes.
-
     Raises:
       ValueError: If detection masks are not in detections dictionary.
     """
@@ -657,7 +625,6 @@ class ObjectDetectionEvaluation(object):
                                          groundtruth_is_group_of_list=None,
                                          groundtruth_masks=None):
     """Adds groundtruth for a single image to be used for evaluation.
-
     Args:
       image_key: A unique string/integer identifier for the image.
       groundtruth_boxes: float32 numpy array of shape [num_boxes, 4]
@@ -704,7 +671,6 @@ class ObjectDetectionEvaluation(object):
                                      detected_scores, detected_class_labels,
                                      detected_masks=None):
     """Adds detections for a single image to be used for evaluation.
-
     Args:
       image_key: A unique string/integer identifier for the image.
       detected_boxes: float32 numpy array of shape [num_boxes, 4]
@@ -717,7 +683,6 @@ class ObjectDetectionEvaluation(object):
       detected_masks: np.uint8 numpy array of shape [num_boxes, height, width]
         containing `num_boxes` detection masks with values ranging
         between 0 and 1.
-
     Raises:
       ValueError: if the number of boxes, scores and class labels differ in
         length.
@@ -772,6 +737,7 @@ class ObjectDetectionEvaluation(object):
       if scores[i].shape[0] > 0:
         self.scores_per_class[i].append(scores[i])
         self.tp_fp_labels_per_class[i].append(tp_fp_labels[i])
+
     (self.num_images_correctly_detected_per_class
     ) += is_class_correctly_detected_in_image
 
@@ -779,12 +745,10 @@ class ObjectDetectionEvaluation(object):
                                       groundtruth_is_difficult_list,
                                       groundtruth_is_group_of_list):
     """Update grouth truth statitistics.
-
     1. Difficult boxes are ignored when counting the number of ground truth
     instances as done in Pascal VOC devkit.
     2. Difficult boxes are treated as normal boxes when computing CorLoc related
     statitistics.
-
     Args:
       groundtruth_class_labels: An integer numpy array of length M,
           representing M class labels of object instances in ground truth
@@ -806,7 +770,6 @@ class ObjectDetectionEvaluation(object):
 
   def evaluate(self):
     """Compute evaluation result.
-
     Returns:
       A named tuple with the following fields -
         average_precision: float numpy array of average precision for
@@ -839,9 +802,9 @@ class ObjectDetectionEvaluation(object):
       if self.use_weighted_mean_ap:
         all_scores = np.append(all_scores, scores)
         all_tp_fp_labels = np.append(all_tp_fp_labels, tp_fp_labels)
-      print 'Scores and tpfp per class label: {}'.format(class_index)
-      print tp_fp_labels
-      print scores
+      print('Scores and tpfp per class label: {}'.format(class_index))
+      print(tp_fp_labels)
+      print(scores)
       precision, recall = metrics.compute_precision_recall(
           scores, tp_fp_labels, self.num_gt_instances_per_class[class_index])
       self.precisions_per_class.append(precision)

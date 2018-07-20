@@ -46,10 +46,10 @@ import json
 import os
 import tensorflow as tf
 
-from object_detection import trainer
 from object_detection.builders import dataset_builder
 from object_detection.builders import graph_rewriter_builder
 from object_detection.builders import model_builder
+from object_detection.legacy import trainer
 from object_detection.utils import config_util
 
 tf.logging.set_verbosity(tf.logging.INFO)
@@ -67,10 +67,12 @@ flags.DEFINE_integer('worker_replicas', 1, 'Number of worker+trainer '
 flags.DEFINE_integer('ps_tasks', 0,
                      'Number of parameter server tasks. If None, does not use '
                      'a parameter server.')
-flags.DEFINE_string('train_dir', 'checkpoints/mot',
+flags.DEFINE_string('train_dir',
+                    '../checkpoints/mot',
                     'Directory to save the checkpoints and training summaries.')
 
-flags.DEFINE_string('pipeline_config_path', 'models/model/faster_rcnn_resnet50_coco.config',
+flags.DEFINE_string('pipeline_config_path',
+                    '../models/model/faster_rcnn_resnet50_coco.config',
                     'Path to a pipeline_pb2.TrainEvalPipelineConfig config '
                     'file. If provided, other configs are ignored')
 
@@ -84,6 +86,7 @@ flags.DEFINE_string('model_config_path', '',
 FLAGS = flags.FLAGS
 
 
+@tf.contrib.framework.deprecated(None, 'Use object_detection/model_main.py.')
 def main(_):
   assert FLAGS.train_dir, '`train_dir` is missing.'
   if FLAGS.task == 0: tf.gfile.MakeDirs(FLAGS.train_dir)

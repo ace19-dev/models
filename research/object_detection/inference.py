@@ -99,7 +99,8 @@ def load_image_into_numpy_array(image):
 # image2.jpg
 # If you want to test the code with your images, just add path to the images to the TEST_IMAGE_PATHS.
 # PATH_TO_TEST_IMAGES_DIR = '/home/ace19/dl_data/MOT/MOT17/test/MOT17-01/img1'
-PATH_TO_TEST_IMAGES_DIR = '/home/ace19/dl_data/MOT/MOT17/test/sample-train'
+PATH_TO_TEST_IMAGES_DIR = '/home/ace19/dl_data/MOT/MOT17/test/sample-test'
+PATH_TO_INFERENCE_SAVE_DIR = '/home/ace19/training_record/MOT/records/result-20180719/inference_result/'
 # TEST_IMAGE_PATHS = [ os.path.join(PATH_TO_TEST_IMAGES_DIR, '{}.JPG'.format(i)) for i in range(1, 11) ]
 image_names = os.listdir(PATH_TO_TEST_IMAGES_DIR)
 
@@ -203,11 +204,10 @@ with detection_graph.as_default():
                 line_thickness=2)
             plt.figure(figsize=IMAGE_SIZE)
             plt.imshow(image_np)
-
-            plt.show()
+            # plt.show()
 
             # save image
-            # plt.savefig(PATH_TO_TEST_IMAGES_DIR + '/infer_' + image_name[:-4] + '.jpg', dpi=750)
+            plt.savefig(PATH_TO_INFERENCE_SAVE_DIR + '/infer_' + image_name, dpi=750)
 
 
 # To disable GPU, add below code
