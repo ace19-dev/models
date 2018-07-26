@@ -25,11 +25,13 @@ import tensorflow as tf
 from object_detection import model_hparams
 from object_detection import model_lib
 
-flags.DEFINE_string(
-    'model_dir', None, 'Path to output model directory '
-    'where event and checkpoint files will be written.')
-flags.DEFINE_string('pipeline_config_path', None, 'Path to pipeline config '
-                    'file.')
+flags.DEFINE_string('model_dir',
+                    'checkpoints/mot',
+                    'Path to output model directory '
+                    'where event and checkpoint files will be written.')
+flags.DEFINE_string('pipeline_config_path',
+                    'models/model/faster_rcnn_resnet50_coco.config',
+                    'Path to pipeline config file.')
 flags.DEFINE_integer('num_train_steps', None, 'Number of train steps.')
 flags.DEFINE_integer('num_eval_steps', None, 'Number of train steps.')
 flags.DEFINE_string(

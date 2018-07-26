@@ -68,11 +68,11 @@ flags.DEFINE_integer('ps_tasks', 0,
                      'Number of parameter server tasks. If None, does not use '
                      'a parameter server.')
 flags.DEFINE_string('train_dir',
-                    '../checkpoints/mot',
+                    'object_detection/checkpoints/mot',
                     'Directory to save the checkpoints and training summaries.')
 
 flags.DEFINE_string('pipeline_config_path',
-                    '../models/model/faster_rcnn_resnet50_coco.config',
+                    'object_detection/models/model/faster_rcnn_nas_coco.config',
                     'Path to a pipeline_pb2.TrainEvalPipelineConfig config '
                     'file. If provided, other configs are ignored')
 
