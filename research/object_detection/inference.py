@@ -209,7 +209,8 @@ with detection_graph.as_default():
             # plt.show()
 
             # save image
-            plt.savefig(PATH_TO_INFERENCE_SAVE_DIR + '/infer_' + image_name, dpi=750)
+            # plt.savefig(PATH_TO_INFERENCE_SAVE_DIR + '/infer_' + image_name, dpi=100)
+            plt.savefig(PATH_TO_INFERENCE_SAVE_DIR + '/infer_' + image_name)
 
 
 # To disable GPU, add below code
