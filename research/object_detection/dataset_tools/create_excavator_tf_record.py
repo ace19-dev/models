@@ -42,7 +42,7 @@ flags.DEFINE_string('output_path',
                     'Path to output TFRecord')
 # flags.DEFINE_string('output_path', '/home/ace19/dl_data/excavator/data/val.record', 'Path to output TFRecord')
 flags.DEFINE_string('label_map_path',
-                    '/home/ace19/training_record/excavator/data/excavator_label_map.pbtxt',
+                    '/home/ace19/training_record/excavator/data/voc_excavator_label_map.pbtxt',
                     'Path to label map proto')
 flags.DEFINE_boolean('ignore_difficult_instances',
                      False, 'Whether to ignore difficult instances')
@@ -173,8 +173,12 @@ def main(_):
       # filename = filenames[i]
       example = example[:-4]
       path = os.path.join(annotations_dir, example + '.xml')
-      with tf.gfile.GFile(path, 'r') as fid:
-          xml_str = fid.read()
+      try:
+          with tf.gfile.GFile(path, 'r') as fid:
+              xml_str = fid.read()
+      except:
+          continue
+
       xml = etree.fromstring(xml_str)
       data = dataset_util.recursive_parse_xml_to_dict(xml)['annotation']
 

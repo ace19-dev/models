@@ -72,7 +72,7 @@ flags.DEFINE_string('train_dir',
                     'Directory to save the checkpoints and training summaries.')
 
 flags.DEFINE_string('pipeline_config_path',
-                    'object_detection/models/model/faster_rcnn_nas_coco.config',
+                    'object_detection/models/model/faster_rcnn_resnet101_coco.config',
                     'Path to a pipeline_pb2.TrainEvalPipelineConfig config '
                     'file. If provided, other configs are ignored')
 
