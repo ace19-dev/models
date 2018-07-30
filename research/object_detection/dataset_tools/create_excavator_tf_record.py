@@ -23,27 +23,32 @@ from lxml import etree
 from object_detection.utils import dataset_util
 from object_detection.utils import label_map_util
 
-RANDOM_SEED = 88
+RANDOM_SEED = 888
 
 
 flags = tf.app.flags
-flags.DEFINE_string('data_dir', '/home/ace19/dl_data/excavator', 'Root Directory to raw excavator dataset.')
-flags.DEFINE_string('set', 'train', 'Convert training set, validation set or '
-                    'merged set.')
+flags.DEFINE_string('data_dir',
+                    '/home/ace19/dl_data/excavator_20180730',
+                    'Root Directory to raw excavator dataset.')
+# flags.DEFINE_string('set', 'train', 'Convert training set, validation set or '
+#                     'merged set.')
 # flags.DEFINE_string('set', 'val', 'Convert training set, validation set or '
 #                     'merged set.')
 flags.DEFINE_string('annotations_dir', 'annotations',
                     '(Relative) path to annotations directory.')
 # flags.DEFINE_string('year', 'VOC2007', 'Desired challenge year.')
-flags.DEFINE_string('output_path', '/home/ace19/dl_data/excavator/data/train.record', 'Path to output TFRecord')
+flags.DEFINE_string('output_path',
+                    '/home/ace19/training_record/excavator/data/tfrecord/train.record',
+                    'Path to output TFRecord')
 # flags.DEFINE_string('output_path', '/home/ace19/dl_data/excavator/data/val.record', 'Path to output TFRecord')
-flags.DEFINE_string('label_map_path', '/home/ace19/dl_data/excavator/data/voc_excavator_label_map.pbtxt',
+flags.DEFINE_string('label_map_path',
+                    '/home/ace19/training_record/excavator/data/excavator_label_map.pbtxt',
                     'Path to label map proto')
-flags.DEFINE_boolean('ignore_difficult_instances', False, 'Whether to ignore '
-                     'difficult instances')
+flags.DEFINE_boolean('ignore_difficult_instances',
+                     False, 'Whether to ignore difficult instances')
 FLAGS = flags.FLAGS
 
-SETS = ['train', 'val', 'trainval', 'test']
+# SETS = ['train', 'val', 'trainval', 'test']
 # YEARS = ['VOC2007', 'VOC2012', 'merged']
 
 
@@ -137,8 +142,8 @@ def dict_to_tf_example(data,
 
 
 def main(_):
-  if FLAGS.set not in SETS:
-    raise ValueError('set must be in : {}'.format(SETS))
+  # if FLAGS.set not in SETS:
+  #   raise ValueError('set must be in : {}'.format(SETS))
   # if FLAGS.year not in YEARS:
   #   raise ValueError('year must be in : {}'.format(YEARS))
 

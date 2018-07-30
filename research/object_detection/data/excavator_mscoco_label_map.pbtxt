@@ -398,3 +398,8 @@ item {
   id: 90
   display_name: "toothbrush"
 }
+item {
+  name: "/m/012exc"
+  id: 91
+  display_name: "excavator"
+}

@@ -36,7 +36,7 @@ from object_detection.utils import visualization_utils as vis_util
 ######################################################################
 # What model to download.
 # MODEL_NAME = 'checkpoints/mask_rcnn_resnet101_atrous_coco_2018_01_28'
-MODEL_NAME = 'checkpoints/mot'
+MODEL_NAME = 'checkpoints/excavator_2018-06-14'
 # MODEL_FILE = MODEL_NAME + '.tar.gz'
 # DOWNLOAD_BASE = 'http://download.tensorflow.org/models/object_detection/'
 
@@ -44,7 +44,7 @@ MODEL_NAME = 'checkpoints/mot'
 PATH_TO_CKPT = MODEL_NAME + '/frozen_inference_graph.pb'
 
 # List of the strings that is used to add correct label for each box.
-PATH_TO_LABELS = os.path.join('data', 'mot_label_map.pbtxt')
+PATH_TO_LABELS = os.path.join('data', 'excavator_label_map.pbtxt')
 
 NUM_CLASSES = 1
 
@@ -99,10 +99,11 @@ def load_image_into_numpy_array(image):
 # image2.jpg
 # If you want to test the code with your images, just add path to the images to the TEST_IMAGE_PATHS.
 # PATH_TO_TEST_IMAGES_DIR = '/home/ace19/dl_data/MOT/MOT17/test/MOT17-01/img1'
-PATH_TO_TEST_IMAGES_DIR = '/home/ace19/dl_data/MOT/MOT17/test/sample-test'
-PATH_TO_INFERENCE_SAVE_DIR = '/home/ace19/training_record/MOT/records/result-20180723/inference_result_by_train_data/'
+PATH_TO_TEST_IMAGES_DIR = '/home/ace19/dl_data/excavator2/test_images'
+PATH_TO_INFERENCE_SAVE_DIR = '/home/ace19/training_record/excavator/records/result-20180730/inference_result_2018-06-14/'
 # TEST_IMAGE_PATHS = [ os.path.join(PATH_TO_TEST_IMAGES_DIR, '{}.JPG'.format(i)) for i in range(1, 11) ]
 image_names = os.listdir(PATH_TO_TEST_IMAGES_DIR)
+image_names.sort()
 
 # Size, in inches, of the output images.
 IMAGE_SIZE = (12, 8)
@@ -179,6 +180,7 @@ with detection_graph.as_default():
             if tensor_name in all_tensor_names:
                 tensor_dict[key] = tf.get_default_graph().get_tensor_by_name(tensor_name)
 
+        plt.figure(figsize=IMAGE_SIZE)
         for image_name in image_names:
             image = Image.open(os.path.join(PATH_TO_TEST_IMAGES_DIR, image_name))
             # the array based representation of the image will be used later in order to prepare the
@@ -202,7 +204,7 @@ with detection_graph.as_default():
                 instance_masks=output_dict.get('detection_masks'),
                 use_normalized_coordinates=True,
                 line_thickness=2)
-            plt.figure(figsize=IMAGE_SIZE)
+            # plt.figure(figsize=IMAGE_SIZE)
             plt.imshow(image_np)
             # plt.show()
 
