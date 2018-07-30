@@ -9,6 +9,7 @@ import tensorflow as tf
 from PIL import Image
 from matplotlib import pyplot as plt
 from tensorflow.python.client import timeline
+import cv2
 
 # This is needed since the notebook is stored in the object_detection folder.
 # sys.path.append("..")
@@ -180,7 +181,7 @@ with detection_graph.as_default():
             if tensor_name in all_tensor_names:
                 tensor_dict[key] = tf.get_default_graph().get_tensor_by_name(tensor_name)
 
-        plt.figure(figsize=IMAGE_SIZE)
+        #plt.figure(figsize=IMAGE_SIZE)
         for image_name in image_names:
             image = Image.open(os.path.join(PATH_TO_TEST_IMAGES_DIR, image_name))
             # the array based representation of the image will be used later in order to prepare the
@@ -205,13 +206,14 @@ with detection_graph.as_default():
                 use_normalized_coordinates=True,
                 line_thickness=2)
             # plt.figure(figsize=IMAGE_SIZE)
-            plt.imshow(image_np)
+            #plt.imshow(image_np)
             # plt.show()
 
             # save image
             # plt.savefig(PATH_TO_INFERENCE_SAVE_DIR + '/infer_' + image_name, dpi=100)
-            plt.savefig(PATH_TO_INFERENCE_SAVE_DIR + '/infer_' + image_name)
-
+            #plt.savefig(PATH_TO_INFERENCE_SAVE_DIR + '/infer_' + image_name)
+            image_np = cv2.cvtColor(image_np, cv2.COLOR_RGB2BGR)
+            cv2.imwrite(PATH_TO_INFERENCE_SAVE_DIR + '/infer_' + image_name, image_np)
 
 # To disable GPU, add below code
 # tf.where and other post-processing operations are running anomaly slow on GPU
