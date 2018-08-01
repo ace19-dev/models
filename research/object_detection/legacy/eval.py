@@ -61,14 +61,14 @@ flags = tf.app.flags
 flags.DEFINE_boolean('eval_training_data', False,
                      'If training data should be evaluated for this job.')
 
-flags.DEFINE_string('checkpoint_dir', 'checkpoints/faster_rcnn_inception_v2_coco',
+flags.DEFINE_string('checkpoint_dir', '../checkpoints/mot',
                     'Directory containing checkpoints to evaluate, typically '
                     'set to `train_dir` used in the training job.')
 
-flags.DEFINE_string('eval_dir', 'checkpoints/faster_rcnn_inception_v2_coco/eval',
+flags.DEFINE_string('eval_dir', '../checkpoints/mot/eval',
                     'Directory to write eval summaries to.')
 
-flags.DEFINE_string('pipeline_config_path', 'models/model/faster_rcnn_inception_v2_coco.config',
+flags.DEFINE_string('pipeline_config_path', '../models/model/faster_rcnn_resnet50_coco.config',
                     'Path to a pipeline_pb2.TrainEvalPipelineConfig config '
                     'file. If provided, other configs are ignored')
 
@@ -89,6 +89,7 @@ FLAGS = flags.FLAGS
 def main(unused_argv):
   assert FLAGS.checkpoint_dir, '`checkpoint_dir` is missing.'
   assert FLAGS.eval_dir, '`eval_dir` is missing.'
+
   tf.gfile.MakeDirs(FLAGS.eval_dir)
   if FLAGS.pipeline_config_path:
     configs = config_util.get_configs_from_pipeline_file(

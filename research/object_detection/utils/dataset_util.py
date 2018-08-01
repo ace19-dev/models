@@ -86,7 +86,6 @@ def recursive_parse_xml_to_dict(xml):
   return {xml.tag: result}
 
 
-<<<<<<< HEAD
 def make_initializable_iterator(dataset):
   """Creates an iterator, and initializes tables.
 
@@ -139,5 +138,3 @@ def read_dataset(file_read_func, decode_func, input_files, config):
   tensor_dataset = records_dataset.map(
       decode_func, num_parallel_calls=config.num_parallel_map_calls)
   return tensor_dataset.prefetch(config.prefetch_size)
-=======
->>>>>>> upstream/master
