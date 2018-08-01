@@ -1,14 +1,17 @@
 # Object detection inference
 #
 
+# Just disables the warning, doesn't enable AVX/FMA
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+
 import os
 import time
 
 import numpy as np
 import tensorflow as tf
 from PIL import Image
-from matplotlib import pyplot as plt
-from tensorflow.python.client import timeline
+# from matplotlib import pyplot as plt
 import cv2
 
 # This is needed since the notebook is stored in the object_detection folder.
@@ -37,7 +40,8 @@ from object_detection.utils import visualization_utils as vis_util
 ######################################################################
 # What model to download.
 # MODEL_NAME = 'checkpoints/mask_rcnn_resnet101_atrous_coco_2018_01_28'
-MODEL_NAME = 'checkpoints/excavator_2018-06-14'
+# MODEL_NAME = 'checkpoints/excavator_2018-07-30'
+MODEL_NAME = 'checkpoints/mot'
 # MODEL_FILE = MODEL_NAME + '.tar.gz'
 # DOWNLOAD_BASE = 'http://download.tensorflow.org/models/object_detection/'
 
@@ -45,7 +49,7 @@ MODEL_NAME = 'checkpoints/excavator_2018-06-14'
 PATH_TO_CKPT = MODEL_NAME + '/frozen_inference_graph.pb'
 
 # List of the strings that is used to add correct label for each box.
-PATH_TO_LABELS = os.path.join('data', 'excavator_label_map.pbtxt')
+PATH_TO_LABELS = os.path.join('data', 'mot_label_map.pbtxt')
 
 NUM_CLASSES = 1
 
@@ -99,9 +103,10 @@ def load_image_into_numpy_array(image):
 # image1.jpg
 # image2.jpg
 # If you want to test the code with your images, just add path to the images to the TEST_IMAGE_PATHS.
-# PATH_TO_TEST_IMAGES_DIR = '/home/ace19/dl_data/MOT/MOT17/test/MOT17-01/img1'
-PATH_TO_TEST_IMAGES_DIR = '/home/ace19/dl_data/excavator2/test_images'
-PATH_TO_INFERENCE_SAVE_DIR = '/home/ace19/training_record/excavator/records/result-20180730/inference_result_2018-06-14/'
+PATH_TO_TEST_IMAGES_DIR = '/home/ace19/dl_data/KDP/test_images'
+# PATH_TO_TEST_IMAGES_DIR = '/home/ace19/dl_data/KDP/test_images'
+# PATH_TO_TEST_IMAGES_DIR = '/home/ace19/dl_data/excavator2/test_images'
+PATH_TO_INFERENCE_SAVE_DIR = '/home/ace19/training_record/KDP/records/result-20180801/inference_result_2018-08-01'
 # TEST_IMAGE_PATHS = [ os.path.join(PATH_TO_TEST_IMAGES_DIR, '{}.JPG'.format(i)) for i in range(1, 11) ]
 image_names = os.listdir(PATH_TO_TEST_IMAGES_DIR)
 image_names.sort()
@@ -181,7 +186,7 @@ with detection_graph.as_default():
             if tensor_name in all_tensor_names:
                 tensor_dict[key] = tf.get_default_graph().get_tensor_by_name(tensor_name)
 
-        #plt.figure(figsize=IMAGE_SIZE)
+        # plt.figure(figsize=IMAGE_SIZE)
         for image_name in image_names:
             image = Image.open(os.path.join(PATH_TO_TEST_IMAGES_DIR, image_name))
             # the array based representation of the image will be used later in order to prepare the
@@ -195,6 +200,9 @@ with detection_graph.as_default():
             # output_dict, run_metadata = run_inference_for_single_image(image_np, detection_graph)
             output_dict = run_inference_for_single_image(image_np, tensor_dict)
 
+            #####################################
+            ### warning : edit depends on biz ###
+            #####################################
             # Visualization of the results of a detection.
             vis_util.visualize_boxes_and_labels_on_image_array(
                 image_np,
@@ -204,14 +212,15 @@ with detection_graph.as_default():
                 category_index,
                 instance_masks=output_dict.get('detection_masks'),
                 use_normalized_coordinates=True,
-                line_thickness=2)
-            # plt.figure(figsize=IMAGE_SIZE)
-            #plt.imshow(image_np)
+                line_thickness=3)
+
+            # plt.imshow(image_np)
             # plt.show()
 
             # save image
             # plt.savefig(PATH_TO_INFERENCE_SAVE_DIR + '/infer_' + image_name, dpi=100)
-            #plt.savefig(PATH_TO_INFERENCE_SAVE_DIR + '/infer_' + image_name)
+            # plt.savefig(PATH_TO_INFERENCE_SAVE_DIR + '/infer_' + image_name)
+
             image_np = cv2.cvtColor(image_np, cv2.COLOR_RGB2BGR)
             cv2.imwrite(PATH_TO_INFERENCE_SAVE_DIR + '/infer_' + image_name, image_np)
 

@@ -110,13 +110,13 @@ flags.DEFINE_string('input_shape', None,
                     'dimensions. If not specified, for an `image_tensor, the '
                     'default shape will be partially specified as '
                     '`[None, None, None, 3]`.')
-flags.DEFINE_string('pipeline_config_path', 'models/model/faster_rcnn_resnet50_coco.config',
+flags.DEFINE_string('pipeline_config_path', 'models/model/faster_rcnn_resnet101_coco.config',
                     'Path to a pipeline_pb2.TrainEvalPipelineConfig config '
                     'file.')
-flags.DEFINE_string('trained_checkpoint_prefix', 'checkpoints/mot/model.ckpt-114305',
+flags.DEFINE_string('trained_checkpoint_prefix', 'checkpoints/excavator_2018-07-30/model.ckpt-190458',
                     'Path to trained checkpoint, typically of the form '
                     'path/to/model.ckpt')
-flags.DEFINE_string('output_directory', 'checkpoints/mot',
+flags.DEFINE_string('output_directory', 'checkpoints/excavator_2018-07-30',
                     'Path to write outputs.')
 flags.DEFINE_string('config_override', '',
                     'pipeline_pb2.TrainEvalPipelineConfig '
