@@ -53,17 +53,17 @@ tf.flags.DEFINE_boolean('include_masks', False,
                         '(PNG encoded) in the result. default: False.')
 tf.flags.DEFINE_string('train_image_dir', '',
                        'Training image directory.')
-tf.flags.DEFINE_string('val_image_dir', '/home/ace19/dl_data/COCO/val2017',
+tf.flags.DEFINE_string('val_image_dir', '/home/acemc19/dl_data/COCO/val2017',
                        'Validation image directory.')
 tf.flags.DEFINE_string('test_image_dir', '',
                        'Test image directory.')
 tf.flags.DEFINE_string('train_annotations_file', '',
                        'Training annotations JSON file.')
-tf.flags.DEFINE_string('val_annotations_file', '/home/ace19/dl_data/COCO/annotations/instances_val2017.json',
+tf.flags.DEFINE_string('val_annotations_file', '/home/acemc19/dl_data/COCO/annotations/instances_val2017.json',
                        'Validation annotations JSON file.')
 tf.flags.DEFINE_string('testdev_annotations_file', '',
                        'Test-dev annotations JSON file.')
-tf.flags.DEFINE_string('output_dir', '/home/ace19/dl_data/COCO/tfrecord', 'Output data directory.')
+tf.flags.DEFINE_string('output_dir', '/home/acemc19/dl_data/COCO/tfrecord', 'Output data directory.')
 
 FLAGS = flags.FLAGS
 
