@@ -238,7 +238,7 @@ with detection_graph.as_default():
             # print('Time %.3f sec' % (time.time() - start_time))
 
         # write out boxes_info to file
-        with open(os.path.join(PATH_TO_INFERENCE_SAVE_DIR + 'KDP_out.txt'), 'a') as f:
+        with open(os.path.join(PATH_TO_INFERENCE_SAVE_DIR, 'KDP_out.txt'), 'a') as f:
             for info in boxes_info_per_images:
                 f.write(info + '\n')
 
