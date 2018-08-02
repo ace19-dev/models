@@ -186,12 +186,20 @@ with detection_graph.as_default():
             if tensor_name in all_tensor_names:
                 tensor_dict[key] = tf.get_default_graph().get_tensor_by_name(tensor_name)
 
+
+        # In order to save box info of images
+        boxes_info_per_images = []
         # plt.figure(figsize=IMAGE_SIZE)
         for image_name in image_names:
-            image = Image.open(os.path.join(PATH_TO_TEST_IMAGES_DIR, image_name))
-            # the array based representation of the image will be used later in order to prepare the
-            # result image with boxes and labels on it.
-            image_np = load_image_into_numpy_array(image)
+            # image = Image.open(os.path.join(PATH_TO_TEST_IMAGES_DIR, image_name))
+            # # the array based representation of the image will be used later in order to prepare the
+            # # result image with boxes and labels on it.
+            # image_np = load_image_into_numpy_array(image)
+
+            # start_time = time.time()
+
+            image_np = cv2.imread(os.path.join(PATH_TO_TEST_IMAGES_DIR, image_name))
+            image_np = cv2.cvtColor(image_np, cv2.COLOR_BGR2RGB)
 
             # Expand dimensions since the model expects images to have shape: [1, None, None, 3]
             image_np_expanded = np.expand_dims(image_np, axis=0)
@@ -204,7 +212,8 @@ with detection_graph.as_default():
             ### warning : edit depends on biz ###
             #####################################
             # Visualization of the results of a detection.
-            vis_util.visualize_boxes_and_labels_on_image_array(
+            _, boxes_info = vis_util.visualize_boxes_and_labels_on_image_array(
+                image_name,
                 image_np,
                 output_dict['detection_boxes'],
                 output_dict['detection_classes'],
@@ -223,6 +232,17 @@ with detection_graph.as_default():
 
             image_np = cv2.cvtColor(image_np, cv2.COLOR_RGB2BGR)
             cv2.imwrite(PATH_TO_INFERENCE_SAVE_DIR + '/infer_' + image_name, image_np)
+
+            boxes_info_per_images.extend(boxes_info)
+            # print("image_name: ", image_name)
+            # print('Time %.3f sec' % (time.time() - start_time))
+
+        # write out boxes_info to file
+        with open(os.path.join(PATH_TO_INFERENCE_SAVE_DIR + 'KDP_out.txt'), 'a') as f:
+            for info in boxes_info_per_images:
+                f.write(info + '\n')
+
+
 
 # To disable GPU, add below code
 # tf.where and other post-processing operations are running anomaly slow on GPU

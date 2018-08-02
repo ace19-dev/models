@@ -526,6 +526,7 @@ def draw_mask_on_image_array(image, mask, color='red', alpha=0.4):
 
 
 def visualize_boxes_and_labels_on_image_array(
+    image_name,
     image,
     boxes,
     classes,
@@ -584,6 +585,7 @@ def visualize_boxes_and_labels_on_image_array(
   """
   # Create a display string (and color) for every box location, group any boxes
   # that correspond to the same location.
+  box_to_score_map = collections.defaultdict(str)
   box_to_display_str_map = collections.defaultdict(list)
   box_to_color_map = collections.defaultdict(str)
   box_to_instance_masks_map = {}
@@ -624,11 +626,19 @@ def visualize_boxes_and_labels_on_image_array(
           else:
             display_str = '{}: {}%'.format(display_str, int(100*scores[i]))
         box_to_display_str_map[box].append(display_str)
+
+        # request on biz
+        score = '{}'.format(int(100*scores[i]))
+        box_to_score_map[box] = score
+
         if agnostic_mode:
           box_to_color_map[box] = 'DarkOrange'
         else:
           box_to_color_map[box] = STANDARD_COLORS[
               classes[i] % len(STANDARD_COLORS)]
+
+  # In order to save boxes info
+  boxes_info = []
 
   # Draw all boxes onto image.
   for box, color in box_to_color_map.items():
@@ -656,6 +666,14 @@ def visualize_boxes_and_labels_on_image_array(
         thickness=line_thickness,
         display_str_list=box_to_display_str_map[box],
         use_normalized_coordinates=use_normalized_coordinates)
+
+    img = int(image_name[:-4].split(' ')[1])
+    boxes_info.append(str(img) + ',' + str(-1) + ',' +
+                      str(xmin) + ',' + str(ymin) + ',' +
+                      str(xmax-xmin) + ',' + str(ymax-ymin) + ',' +
+                      box_to_score_map[box] + ',' +
+                      str(-1) + ',' + str(-1) + ',' + str(-1))
+
     if keypoints is not None:
       draw_keypoints_on_image_array(
           image,
@@ -664,7 +682,7 @@ def visualize_boxes_and_labels_on_image_array(
           radius=line_thickness / 2,
           use_normalized_coordinates=use_normalized_coordinates)
 
-  return image
+  return image, boxes_info
 
 
 def add_cdf_image_summary(values, name):
