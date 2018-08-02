@@ -68,7 +68,7 @@ flags.DEFINE_integer('ps_tasks', 0,
                      'Number of parameter server tasks. If None, does not use '
                      'a parameter server.')
 flags.DEFINE_string('train_dir',
-                    'object_detection/checkpoints/excavator_2018-07-30',
+                    'object_detection/checkpoints/excavator_2018-08-02',
                     'Directory to save the checkpoints and training summaries.')
 
 flags.DEFINE_string('pipeline_config_path',

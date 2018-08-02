@@ -667,12 +667,23 @@ def visualize_boxes_and_labels_on_image_array(
         display_str_list=box_to_display_str_map[box],
         use_normalized_coordinates=use_normalized_coordinates)
 
+    # For MOT
     img = int(image_name[:-4].split(' ')[1])
+    img_height = image.shape[0]
+    img_width = image.shape[1]
     boxes_info.append(str(img) + ',' + str(-1) + ',' +
-                      str(xmin) + ',' + str(ymin) + ',' +
-                      str(xmax-xmin) + ',' + str(ymax-ymin) + ',' +
+                      str(xmin * img_width) + ',' + str(ymin * img_height) + ',' +
+                      str(xmax * img_width) + ',' + str(ymax * img_height) + ',' +
                       box_to_score_map[box] + ',' +
                       str(-1) + ',' + str(-1) + ',' + str(-1))
+
+    # For Excavator
+    # img_height = image.shape[0]
+    # img_width = image.shape[1]
+    # boxes_info.append(image_name + ',' +
+    #                   str(xmin * img_width) + ',' + str(ymin * img_height) + ',' +
+    #                   str(xmax * img_width) + ',' + str(ymax * img_height) + ',' +
+    #                   box_to_score_map[box])
 
     if keypoints is not None:
       draw_keypoints_on_image_array(

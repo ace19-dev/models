@@ -104,7 +104,6 @@ def load_image_into_numpy_array(image):
 # image2.jpg
 # If you want to test the code with your images, just add path to the images to the TEST_IMAGE_PATHS.
 PATH_TO_TEST_IMAGES_DIR = '/home/ace19/dl_data/KDP/test_images'
-# PATH_TO_TEST_IMAGES_DIR = '/home/ace19/dl_data/KDP/test_images'
 # PATH_TO_TEST_IMAGES_DIR = '/home/ace19/dl_data/excavator2/test_images'
 PATH_TO_INFERENCE_SAVE_DIR = '/home/ace19/training_record/KDP/records/result-20180801/inference_result_2018-08-01'
 # TEST_IMAGE_PATHS = [ os.path.join(PATH_TO_TEST_IMAGES_DIR, '{}.JPG'.format(i)) for i in range(1, 11) ]
@@ -234,11 +233,12 @@ with detection_graph.as_default():
             cv2.imwrite(PATH_TO_INFERENCE_SAVE_DIR + '/infer_' + image_name, image_np)
 
             boxes_info_per_images.extend(boxes_info)
+
             # print("image_name: ", image_name)
             # print('Time %.3f sec' % (time.time() - start_time))
 
         # write out boxes_info to file
-        with open(os.path.join(PATH_TO_INFERENCE_SAVE_DIR, 'KDP_out.txt'), 'a') as f:
+        with open(os.path.join(PATH_TO_INFERENCE_SAVE_DIR, 'out.txt'), 'a') as f:
             for info in boxes_info_per_images:
                 f.write(info + '\n')
 
