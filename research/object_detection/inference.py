@@ -50,7 +50,6 @@ PATH_TO_CKPT = MODEL_NAME + '/frozen_inference_graph.pb'
 
 # List of the strings that is used to add correct label for each box.
 PATH_TO_LABELS = os.path.join('data', 'mot_label_map.pbtxt')
-
 NUM_CLASSES = 1
 
 
@@ -105,7 +104,8 @@ def load_image_into_numpy_array(image):
 # If you want to test the code with your images, just add path to the images to the TEST_IMAGE_PATHS.
 PATH_TO_TEST_IMAGES_DIR = '/home/ace19/dl_data/KDP/test_images'
 # PATH_TO_TEST_IMAGES_DIR = '/home/ace19/dl_data/excavator2/test_images'
-PATH_TO_INFERENCE_SAVE_DIR = '/home/ace19/training_record/KDP/records/result-20180801/inference_result_2018-08-01'
+PATH_TO_INFERENCE_SAVE_DIR = '/home/ace19/training_record/KDP/records/result-20180803/inference_result'
+# PATH_TO_INFERENCE_SAVE_DIR = '/home/ace19/training_record/excavator/records/result-20180802/inference_result'
 # TEST_IMAGE_PATHS = [ os.path.join(PATH_TO_TEST_IMAGES_DIR, '{}.JPG'.format(i)) for i in range(1, 11) ]
 image_names = os.listdir(PATH_TO_TEST_IMAGES_DIR)
 image_names.sort()

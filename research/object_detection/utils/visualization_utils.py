@@ -628,8 +628,7 @@ def visualize_boxes_and_labels_on_image_array(
         box_to_display_str_map[box].append(display_str)
 
         # request on biz
-        score = '{}'.format(int(100*scores[i]))
-        box_to_score_map[box] = score
+        box_to_score_map[box] = '{}'.format(int(100*scores[i]))
 
         if agnostic_mode:
           box_to_color_map[box] = 'DarkOrange'
@@ -671,9 +670,13 @@ def visualize_boxes_and_labels_on_image_array(
     img = int(image_name[:-4].split(' ')[1])
     img_height = image.shape[0]
     img_width = image.shape[1]
+    xmin = xmin * img_width
+    ymin = ymin * img_height
+    xmax = xmax * img_width
+    ymax = ymax * img_height
     boxes_info.append(str(img) + ',' + str(-1) + ',' +
-                      str(xmin * img_width) + ',' + str(ymin * img_height) + ',' +
-                      str(xmax * img_width) + ',' + str(ymax * img_height) + ',' +
+                      str(xmin) + ',' + str(ymin) + ',' +
+                      str(xmax - xmin) + ',' + str(ymax - ymin) + ',' +
                       box_to_score_map[box] + ',' +
                       str(-1) + ',' + str(-1) + ',' + str(-1))
 
