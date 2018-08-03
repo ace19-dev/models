@@ -61,11 +61,11 @@ flags = tf.app.flags
 flags.DEFINE_boolean('eval_training_data', False,
                      'If training data should be evaluated for this job.')
 
-flags.DEFINE_string('checkpoint_dir', '../checkpoints/mot',
+flags.DEFINE_string('checkpoint_dir', '../checkpoints/faster_rcnn_resnet50_coco_2018_01_28',
                     'Directory containing checkpoints to evaluate, typically '
                     'set to `train_dir` used in the training job.')
 
-flags.DEFINE_string('eval_dir', '../checkpoints/mot/eval',
+flags.DEFINE_string('eval_dir', '../checkpoints/faster_rcnn_resnet50_coco_2018_01_28/eval',
                     'Directory to write eval summaries to.')
 
 flags.DEFINE_string('pipeline_config_path', '../models/model/faster_rcnn_resnet50_coco.config',
