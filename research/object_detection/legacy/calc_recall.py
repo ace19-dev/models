@@ -26,8 +26,9 @@ flags.DEFINE_string('output_path',
                     '/home/ace19/training_record/excavator/records/result-20180802/inference_result/out.txt',
                     'Path to output TFRecord')
 
-flags.DEFINE_boolean('ignore_difficult_instances', True, 'Whether to ignore '
-                                                  'difficult instances')
+flags.DEFINE_boolean('ignore_difficult_instances',
+                     True,
+                     'Whether to ignore difficult instances')
 
 
 FLAGS = flags.FLAGS
