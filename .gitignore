@@ -91,5 +91,8 @@ ENV/
 # PyCharm
 .idea/
 
+
 # Checkpoint
 checkpoints/
+
+samples/outreach/blogs/segmentation_blogpost/carvana-image-masking-challenge/
