@@ -208,7 +208,7 @@ with detection_graph.as_default():
             output_dict = run_inference_for_single_image(image_np, tensor_dict)
 
             #####################################
-            ### warning : edit depends on biz ###
+            ### caution : edit depends on biz ###
             #####################################
             # Visualization of the results of a detection.
             _, boxes_info = vis_util.visualize_boxes_and_labels_on_image_array(

@@ -596,7 +596,7 @@ def visualize_boxes_and_labels_on_image_array(
   for i in range(min(max_boxes_to_draw, boxes.shape[0])):
     if scores is None or scores[i] > min_score_thresh:
       #####################################
-      ### warning : edit depends on biz ###
+      ### caution : edit depends on biz ###
       #####################################
       # Customize for excavator
       if classes[i] != 21:
