@@ -1,7 +1,7 @@
 import os
 import cv2
 
-IMAGE_DIR = '/home/ace19/training_record/excavator/records/result-20180802/inference_result/'
+IMAGE_DIR = '/home/ace19/training_record/MOT/records/result_det_file-20180816/MOT17-03/'
 
 v = cv2.VideoWriter(IMAGE_DIR + 'output.avi', cv2.VideoWriter_fourcc('X', 'V', 'I', 'D'), 30, (1920, 1080))
 

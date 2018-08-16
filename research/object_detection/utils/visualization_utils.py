@@ -599,8 +599,8 @@ def visualize_boxes_and_labels_on_image_array(
       ### caution : edit depends on biz ###
       #####################################
       # Customize for excavator
-      if classes[i] != 21:
-        continue
+      # if classes[i] != 21:
+      #   continue
 
       box = tuple(boxes[i].tolist())
       if instance_masks is not None:
@@ -666,31 +666,32 @@ def visualize_boxes_and_labels_on_image_array(
         display_str_list=box_to_display_str_map[box],
         use_normalized_coordinates=use_normalized_coordinates)
 
-    ############
-    # For MOT
-    ############
+    ##################
+    # logic for MOT
+    ##################
     # img = int(image_name[:-4].split(' ')[1])
-    # img_height = image.shape[0]
-    # img_width = image.shape[1]
-    # xmin = xmin * img_width
-    # ymin = ymin * img_height
-    # xmax = xmax * img_width
-    # ymax = ymax * img_height
-    # boxes_info.append(str(img) + ',' + str(-1) + ',' +
-    #                   str(xmin) + ',' + str(ymin) + ',' +
-    #                   str(xmax - xmin) + ',' + str(ymax - ymin) + ',' +
-    #                   box_to_score_map[box] + ',' +
-    #                   str(-1) + ',' + str(-1) + ',' + str(-1))
-
-    #################
-    # For Excavator
-    #################
+    img = int(image_name[:-4])
     img_height = image.shape[0]
     img_width = image.shape[1]
-    # filename, ymin, xmin, ymax, xmax
-    boxes_info.append(image_name + ',' +
-                      str(ymin * img_height) + ',' + str(xmin * img_width) + ',' +
-                      str(ymax * img_height) + ',' + str(xmax * img_width))
+    xmin = xmin * img_width
+    ymin = ymin * img_height
+    xmax = xmax * img_width
+    ymax = ymax * img_height
+    boxes_info.append(str(img) + ',' + str(-1) + ',' +
+                      str(xmin) + ',' + str(ymin) + ',' +
+                      str(xmax - xmin) + ',' + str(ymax - ymin) + ',' +
+                      box_to_score_map[box] + ',' +
+                      str(-1) + ',' + str(-1) + ',' + str(-1))
+
+    #######################
+    # logic for Excavator
+    #######################
+    # img_height = image.shape[0]
+    # img_width = image.shape[1]
+    # # filename, ymin, xmin, ymax, xmax
+    # boxes_info.append(image_name + ',' +
+    #                   str(ymin * img_height) + ',' + str(xmin * img_width) + ',' +
+    #                   str(ymax * img_height) + ',' + str(xmax * img_width))
 
     if keypoints is not None:
       draw_keypoints_on_image_array(
