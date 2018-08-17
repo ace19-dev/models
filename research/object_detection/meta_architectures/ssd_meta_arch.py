@@ -13,7 +13,6 @@
 # limitations under the License.
 # ==============================================================================
 """SSD Meta-architecture definition.
-
 General tensorflow implementation of convolutional Multibox/SSD detection
 models.
 """
@@ -48,7 +47,6 @@ class SSDFeatureExtractor(object):
                use_depthwise=False,
                override_base_feature_extractor_hyperparams=False):
     """Constructor.
-
     Args:
       is_training: whether the network is in training mode.
       depth_multiplier: float depth multiplier for feature extractor.
@@ -84,11 +82,9 @@ class SSDFeatureExtractor(object):
   @abstractmethod
   def preprocess(self, resized_inputs):
     """Preprocesses images for feature extraction (minus image resizing).
-
     Args:
       resized_inputs: a [batch, height, width, channels] float tensor
         representing a batch of images.
-
     Returns:
       preprocessed_inputs: a [batch, height, width, channels] float tensor
         representing a batch of images.
@@ -102,14 +98,11 @@ class SSDFeatureExtractor(object):
   @abstractmethod
   def extract_features(self, preprocessed_inputs):
     """Extracts features from preprocessed inputs.
-
     This function is responsible for extracting feature maps from preprocessed
     images.
-
     Args:
       preprocessed_inputs: a [batch, height, width, channels] float tensor
         representing a batch of images.
-
     Returns:
       feature_maps: a list of tensors where the ith tensor has shape
         [batch, height_i, width_i, depth_i]
@@ -132,7 +125,6 @@ class SSDKerasFeatureExtractor(tf.keras.Model):
                use_depthwise=False,
                override_base_feature_extractor_hyperparams=False):
     """Constructor.
-
     Args:
       is_training: whether the network is in training mode.
       depth_multiplier: float depth multiplier for feature extractor.
@@ -178,11 +170,9 @@ class SSDKerasFeatureExtractor(tf.keras.Model):
   @abstractmethod
   def preprocess(self, resized_inputs):
     """Preprocesses images for feature extraction (minus image resizing).
-
     Args:
       resized_inputs: a [batch, height, width, channels] float tensor
         representing a batch of images.
-
     Returns:
       preprocessed_inputs: a [batch, height, width, channels] float tensor
         representing a batch of images.
@@ -196,14 +186,11 @@ class SSDKerasFeatureExtractor(tf.keras.Model):
   @abstractmethod
   def _extract_features(self, preprocessed_inputs):
     """Extracts features from preprocessed inputs.
-
     This function is responsible for extracting feature maps from preprocessed
     images.
-
     Args:
       preprocessed_inputs: a [batch, height, width, channels] float tensor
         representing a batch of images.
-
     Returns:
       feature_maps: a list of tensors where the ith tensor has shape
         [batch, height_i, width_i, depth_i]
@@ -247,11 +234,9 @@ class SSDMetaArch(model.DetectionModel):
                expected_classification_loss_under_sampling=None,
                target_assigner_instance=None):
     """SSDMetaArch Constructor.
-
     TODO(rathodv,jonathanhuang): group NMS parameters + score converter into
     a class and loss parameters into a class and write config protos for
     postprocessing and losses.
-
     Args:
       is_training: A boolean indicating whether the training version of the
         computation graph should be constructed.
@@ -393,15 +378,12 @@ class SSDMetaArch(model.DetectionModel):
 
   def preprocess(self, inputs):
     """Feature-extractor specific preprocessing.
-
     SSD meta architecture uses a default clip_window of [0, 0, 1, 1] during
     post-processing. On calling `preprocess` method, clip_window gets updated
     based on `true_image_shapes` returned by `image_resizer_fn`.
-
     Args:
       inputs: a [batch, height_in, width_in, channels] float tensor representing
         a batch of images with values between 0 and 255.0.
-
     Returns:
       preprocessed_inputs: a [batch, height_out, width_out, channels] float
         tensor representing a batch of images.
@@ -409,7 +391,6 @@ class SSDMetaArch(model.DetectionModel):
         of the form [height, width, channels] indicating the shapes
         of true images in the resized images, as resized images can be padded
         with zeros.
-
     Raises:
       ValueError: if inputs tensor does not have type tf.float32
     """
@@ -430,11 +411,9 @@ class SSDMetaArch(model.DetectionModel):
 
   def _compute_clip_window(self, preprocessed_images, true_image_shapes):
     """Computes clip window to use during post_processing.
-
     Computes a new clip window to use during post-processing based on
     `resized_image_shapes` and `true_image_shapes` only if `preprocess` method
     has been called. Otherwise returns a default clip window of [0, 0, 1, 1].
-
     Args:
       preprocessed_images: the [batch, height, width, channels] image
           tensor.
@@ -442,13 +421,11 @@ class SSDMetaArch(model.DetectionModel):
         of the form [height, width, channels] indicating the shapes
         of true images in the resized images, as resized images can be padded
         with zeros. Or None if the clip window should cover the full image.
-
     Returns:
       a 2-D float32 tensor of the form [batch_size, 4] containing the clip
       window for each image in the batch in normalized coordinates (relative to
       the resized dimensions) where each clip window is of the form [ymin, xmin,
       ymax, xmax] or a default clip window of [0, 0, 1, 1].
-
     """
     if true_image_shapes is None:
       return tf.constant([0, 0, 1, 1], dtype=tf.float32)
@@ -469,21 +446,17 @@ class SSDMetaArch(model.DetectionModel):
 
   def predict(self, preprocessed_inputs, true_image_shapes):
     """Predicts unpostprocessed tensors from input tensor.
-
     This function takes an input batch of images and runs it through the forward
     pass of the network to yield unpostprocessesed predictions.
-
     A side effect of calling the predict method is that self._anchors is
     populated with a box_list.BoxList of anchors.  These anchors must be
     constructed before the postprocess or loss functions can be called.
-
     Args:
       preprocessed_inputs: a [batch, height, width, channels] image tensor.
       true_image_shapes: int32 tensor of shape [batch, 3] where each row is
         of the form [height, width, channels] indicating the shapes
         of true images in the resized images, as resized images can be padded
         with zeros.
-
     Returns:
       prediction_dict: a dictionary holding "raw" prediction tensors:
         1) preprocessed_inputs: the [batch, height, width, channels] image
@@ -501,42 +474,6 @@ class SSDMetaArch(model.DetectionModel):
     """
     batchnorm_updates_collections = (None if self._inplace_batchnorm_update
                                      else tf.GraphKeys.UPDATE_OPS)
-<<<<<<< HEAD
-    with slim.arg_scope([slim.batch_norm],
-                        is_training=(self._is_training and
-                                     not self._freeze_batchnorm),
-                        updates_collections=batchnorm_updates_collections):
-      with tf.variable_scope(None, self._extract_features_scope,
-                             [preprocessed_inputs]):
-        feature_maps = self._feature_extractor.extract_features(
-            preprocessed_inputs)
-      feature_map_spatial_dims = self._get_feature_map_spatial_dims(
-          feature_maps)
-      image_shape = shape_utils.combined_static_and_dynamic_shape(
-          preprocessed_inputs)
-      self._anchors = box_list_ops.concatenate(
-          self._anchor_generator.generate(
-              feature_map_spatial_dims,
-              im_height=image_shape[1],
-              im_width=image_shape[2]))
-      prediction_dict = self._box_predictor.predict(
-          feature_maps, self._anchor_generator.num_anchors_per_location())
-      box_encodings = tf.squeeze(
-          tf.concat(prediction_dict['box_encodings'], axis=1), axis=2)
-      class_predictions_with_background = tf.concat(
-          prediction_dict['class_predictions_with_background'], axis=1)
-      predictions_dict = {
-          'preprocessed_inputs': preprocessed_inputs,
-          'box_encodings': box_encodings,
-          'class_predictions_with_background':
-          class_predictions_with_background,
-          'feature_maps': feature_maps,
-          'anchors': self._anchors.get()
-      }
-      self._batched_prediction_tensor_names = [x for x in predictions_dict
-                                               if x != 'anchors']
-      return predictions_dict
-=======
     if self._feature_extractor.is_keras_model:
       feature_maps = self._feature_extractor(preprocessed_inputs)
     else:
@@ -584,15 +521,12 @@ class SSDMetaArch(model.DetectionModel):
     self._batched_prediction_tensor_names = [x for x in predictions_dict
                                              if x != 'anchors']
     return predictions_dict
->>>>>>> upstream/master
 
   def _get_feature_map_spatial_dims(self, feature_maps):
     """Return list of spatial dimensions for each feature map in a list.
-
     Args:
       feature_maps: a list of tensors where the ith tensor has shape
           [batch, height_i, width_i, depth_i].
-
     Returns:
       a list of pairs (height, width) for each feature map in feature_maps
     """
@@ -604,16 +538,13 @@ class SSDMetaArch(model.DetectionModel):
 
   def postprocess(self, prediction_dict, true_image_shapes):
     """Converts prediction tensors to final detections.
-
     This function converts raw predictions tensors to final detection results by
     slicing off the background class, decoding box predictions and applying
     non max suppression and clipping to the image window.
-
     See base class for output format conventions.  Note also that by default,
     scores are to be interpreted as logits, but if a score_conversion_fn is
     used, then scores are remapped (and may thus have a different
     interpretation).
-
     Args:
       prediction_dict: a dictionary holding prediction tensors with
         1) preprocessed_inputs: a [batch, height, width, channels] image
@@ -628,7 +559,6 @@ class SSDMetaArch(model.DetectionModel):
         of the form [height, width, channels] indicating the shapes
         of true images in the resized images, as resized images can be padded
         with zeros. Or None, if the clip window should cover the full image.
-
     Returns:
       detections: a dictionary containing the following fields
         detection_boxes: [batch, max_detections, 4]
@@ -686,10 +616,8 @@ class SSDMetaArch(model.DetectionModel):
 
   def loss(self, prediction_dict, true_image_shapes, scope=None):
     """Compute scalar loss tensors with respect to provided groundtruth.
-
     Calling this function requires that groundtruth tensors have been
     provided via the provide_groundtruth function.
-
     Args:
       prediction_dict: a dictionary holding prediction tensors with
         1) box_encodings: 3-D float tensor of shape [batch_size, num_anchors,
@@ -703,7 +631,6 @@ class SSDMetaArch(model.DetectionModel):
         of true images in the resized images, as resized images can be padded
         with zeros.
       scope: Optional scope name.
-
     Returns:
       a dictionary mapping loss keys (`localization_loss` and
         `classification_loss`) to scalar tensors representing corresponding loss
@@ -805,13 +732,11 @@ class SSDMetaArch(model.DetectionModel):
 
   def _minibatch_subsample_fn(self, inputs):
     """Randomly samples anchors for one image.
-
     Args:
       inputs: a list of 2 inputs. First one is a tensor of shape [num_anchors,
         num_classes] indicating targets assigned to each anchor. Second one
         is a tensor of shape [num_anchors] indicating the class weight of each
         anchor.
-
     Returns:
       batch_sampled_indicator: bool tensor of shape [num_anchors] indicating
         whether the anchor should be selected for loss computation.
@@ -845,10 +770,8 @@ class SSDMetaArch(model.DetectionModel):
                       groundtruth_keypoints_list=None,
                       groundtruth_weights_list=None):
     """Assign groundtruth targets.
-
     Adds a background class to each one-hot encoding of groundtruth classes
     and uses target assigner to obtain regression and classification targets.
-
     Args:
       groundtruth_boxes_list: a list of 2-D tensors of shape [num_boxes, 4]
         containing coordinates of the groundtruth boxes.
@@ -862,7 +785,6 @@ class SSDMetaArch(model.DetectionModel):
         [num_boxes, num_keypoints, 2]
       groundtruth_weights_list: A list of 1-D tf.float32 tensors of shape
         [num_boxes] containing weights for groundtruth boxes.
-
     Returns:
       batch_cls_targets: a tensor with shape [batch_size, num_anchors,
         num_classes],
@@ -897,12 +819,10 @@ class SSDMetaArch(model.DetectionModel):
 
   def _summarize_target_assignment(self, groundtruth_boxes_list, match_list):
     """Creates tensorflow summaries for the input boxes and anchors.
-
     This function creates four summaries corresponding to the average
     number (over images in a batch) of (1) groundtruth boxes, (2) anchors
     marked as positive, (3) anchors marked as negative, and (4) anchors marked
     as ignored.
-
     Args:
       groundtruth_boxes_list: a list of 2-D tensors of shape [num_boxes, 4]
         containing corners of the groundtruth boxes.
@@ -935,7 +855,6 @@ class SSDMetaArch(model.DetectionModel):
   def _apply_hard_mining(self, location_losses, cls_losses, prediction_dict,
                          match_list):
     """Applies hard mining to anchorwise losses.
-
     Args:
       location_losses: Float tensor of shape [batch_size, num_anchors]
         representing anchorwise location losses.
@@ -952,7 +871,6 @@ class SSDMetaArch(model.DetectionModel):
         anchors and groundtruth boxes for each image of the batch,
         with rows of the Match objects corresponding to groundtruth boxes
         and columns corresponding to anchors.
-
     Returns:
       mined_location_loss: a float scalar with sum of localization losses from
         selected hard examples.
@@ -980,11 +898,9 @@ class SSDMetaArch(model.DetectionModel):
 
   def _batch_decode(self, box_encodings):
     """Decodes a batch of box encodings with respect to the anchors.
-
     Args:
       box_encodings: A float32 tensor of shape
         [batch_size, num_anchors, box_code_size] containing box encodings.
-
     Returns:
       decoded_boxes: A float32 tensor of shape
         [batch_size, num_anchors, 4] containing the decoded boxes.
@@ -1018,9 +934,7 @@ class SSDMetaArch(model.DetectionModel):
                   fine_tune_checkpoint_type='detection',
                   load_all_detection_checkpoint_vars=False):
     """Returns a map of variables to load from a foreign checkpoint.
-
     See parent class for details.
-
     Args:
       fine_tune_checkpoint_type: whether to restore from a full detection
         checkpoint (with compatible variable names) or to restore from a
@@ -1029,7 +943,6 @@ class SSDMetaArch(model.DetectionModel):
       load_all_detection_checkpoint_vars: whether to load all variables (when
          `fine_tune_checkpoint_type='detection'`). If False, only variables
          within the appropriate scopes are included. Default False.
-
     Returns:
       A dict mapping variable names (to load from a checkpoint) to variables in
       the model graph.

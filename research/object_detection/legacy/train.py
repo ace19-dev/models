@@ -68,11 +68,11 @@ flags.DEFINE_integer('ps_tasks', 0,
                      'Number of parameter server tasks. If None, does not use '
                      'a parameter server.')
 flags.DEFINE_string('train_dir',
-                    'object_detection/checkpoints/excavator_2018-08-02',
+                    '/home/ace19/my-repo/models/research/object_detection/checkpoints/mot_2018-08-17',
                     'Directory to save the checkpoints and training summaries.')
 
 flags.DEFINE_string('pipeline_config_path',
-                    'object_detection/models/model/faster_rcnn_resnet101_coco.config',
+                    '/home/ace19/my-repo/models/research/object_detection/models/model/faster_rcnn_resnet50_coco.config',
                     'Path to a pipeline_pb2.TrainEvalPipelineConfig config '
                     'file. If provided, other configs are ignored')
 

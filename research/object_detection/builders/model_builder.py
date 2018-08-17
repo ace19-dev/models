@@ -89,7 +89,6 @@ FASTER_RCNN_FEATURE_EXTRACTOR_CLASS_MAP = {
 def build(model_config, is_training, add_summaries=True,
           add_background_class=True):
   """Builds a DetectionModel based on the model config.
-
   Args:
     model_config: A model.proto object containing the config for the desired
       DetectionModel.
@@ -101,7 +100,6 @@ def build(model_config, is_training, add_summaries=True,
       truth in the case of distillation. Ignored in the case of faster_rcnn.
   Returns:
     DetectionModel based on the config.
-
   Raises:
     ValueError: On invalid meta architecture or model.
   """
@@ -120,15 +118,12 @@ def build(model_config, is_training, add_summaries=True,
 def _build_ssd_feature_extractor(feature_extractor_config, is_training,
                                  reuse_weights=None):
   """Builds a ssd_meta_arch.SSDFeatureExtractor based on config.
-
   Args:
     feature_extractor_config: A SSDFeatureExtractor proto config from ssd.proto.
     is_training: True if this feature extractor is being built for training.
     reuse_weights: if the feature extractor should reuse weights.
-
   Returns:
     ssd_meta_arch.SSDFeatureExtractor based on config.
-
   Raises:
     ValueError: On invalid feature extractor type.
   """
@@ -180,7 +175,6 @@ def _build_ssd_feature_extractor(feature_extractor_config, is_training,
 def _build_ssd_model(ssd_config, is_training, add_summaries,
                      add_background_class=True):
   """Builds an SSD detection model based on the model config.
-
   Args:
     ssd_config: A ssd.proto object containing the config for the desired
       SSDMetaArch.
@@ -192,7 +186,6 @@ def _build_ssd_model(ssd_config, is_training, add_summaries,
       truth in the case of distillation.
   Returns:
     SSDMetaArch based on the config.
-
   Raises:
     ValueError: If ssd_config.type is not recognized (i.e. not registered in
       model_class_map).
@@ -274,7 +267,6 @@ def _build_faster_rcnn_feature_extractor(
     feature_extractor_config, is_training, reuse_weights=None,
     inplace_batchnorm_update=False):
   """Builds a faster_rcnn_meta_arch.FasterRCNNFeatureExtractor based on config.
-
   Args:
     feature_extractor_config: A FasterRcnnFeatureExtractor proto config from
       faster_rcnn.proto.
@@ -285,10 +277,8 @@ def _build_faster_rcnn_feature_extractor(
       this is false, user must add a control dependency on
       tf.GraphKeys.UPDATE_OPS for train/loss op in order to update the batch
       norm moving average parameters.
-
   Returns:
     faster_rcnn_meta_arch.FasterRCNNFeatureExtractor based on config.
-
   Raises:
     ValueError: On invalid feature extractor type.
   """
@@ -311,19 +301,15 @@ def _build_faster_rcnn_feature_extractor(
 
 def _build_faster_rcnn_model(frcnn_config, is_training, add_summaries):
   """Builds a Faster R-CNN or R-FCN detection model based on the model config.
-
   Builds R-FCN model if the second_stage_box_predictor in the config is of type
   `rfcn_box_predictor` else builds a Faster R-CNN model.
-
   Args:
     frcnn_config: A faster_rcnn.proto object containing the config for the
       desired FasterRCNNMetaArch or RFCNMetaArch.
     is_training: True if this model is being built for training purposes.
     add_summaries: Whether to add tf summaries in the model.
-
   Returns:
     FasterRCNNMetaArch based on the config.
-
   Raises:
     ValueError: If frcnn_config.type is not recognized (i.e. not registered in
       model_class_map).

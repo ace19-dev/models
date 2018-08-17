@@ -36,20 +36,16 @@ def multiclass_non_max_suppression(boxes,
                                    additional_fields=None,
                                    scope=None):
   """Multi-class version of non maximum suppression.
-
   This op greedily selects a subset of detection bounding boxes, pruning
   away boxes that have high IOU (intersection over union) overlap (> thresh)
   with already selected boxes.  It operates independently for each class for
   which scores are provided (via the scores field of the input box_list),
   pruning boxes with score less than a provided threshold prior to
   applying NMS.
-
   Please note that this operation is performed on *all* classes, therefore any
   background classes should be removed prior to calling this function.
-
   Selected boxes are guaranteed to be sorted in decreasing order by score (but
   the sort is not guaranteed to be stable).
-
   Args:
     boxes: A [k, q, 4] float32 tensor containing k detections. `q` can be either
       number of classes or 1 depending on whether a separate box is predicted
@@ -79,12 +75,10 @@ def multiclass_non_max_suppression(boxes,
       suppression, all tensors corresponding to the selected boxes will be
       added to resulting BoxList.
     scope: name scope.
-
   Returns:
     a BoxList holding M boxes with a rank-1 scores field representing
       corresponding scores for each box with scores sorted in decreasing order
       and a rank-1 classes field representing a class label for each box.
-
   Raises:
     ValueError: if iou_thresh is not in [0, 1] or if input boxlist does not have
       a valid scores field.
@@ -184,11 +178,9 @@ def batch_multiclass_non_max_suppression(boxes,
                                          scope=None,
                                          parallel_iterations=32):
   """Multi-class version of non maximum suppression that operates on a batch.
-
   This op is similar to `multiclass_non_max_suppression` but operates on a batch
   of boxes and scores. See documentation for `multiclass_non_max_suppression`
   for details.
-
   Args:
     boxes: A [batch_size, num_anchors, q, 4] float32 tensor containing
       detections. If `q` is 1 then same boxes are used for all classes
@@ -223,7 +215,6 @@ def batch_multiclass_non_max_suppression(boxes,
     scope: tf scope name.
     parallel_iterations: (optional) number of batch items to process in
       parallel.
-
   Returns:
     'nmsed_boxes': A [batch_size, max_detections, 4] float32 tensor
       containing the non-max suppressed boxes.
@@ -243,7 +234,6 @@ def batch_multiclass_non_max_suppression(boxes,
       valid detections per batch item. Only the top num_detections[i] entries in
       nms_boxes[i], nms_scores[i] and nms_class[i] are valid. The rest of the
       entries are zero paddings.
-
   Raises:
     ValueError: if `q` in boxes.shape is not 1 or not equal to number of
       classes as inferred from scores.shape.
@@ -294,7 +284,6 @@ def batch_multiclass_non_max_suppression(boxes,
 
     def _single_image_nms_fn(args):
       """Runs NMS on a single image and returns padded output.
-
       Args:
         args: A list of tensors consisting of the following:
           per_image_boxes - A [num_anchors, q, 4] float32 tensor containing
@@ -315,7 +304,6 @@ def batch_multiclass_non_max_suppression(boxes,
             shape [batch_size] representing the number of valid boxes to be
             considered for each image in the batch.  This parameter allows for
             ignoring zero paddings.
-
       Returns:
         'nmsed_boxes': A [max_detections, 4] float32 tensor containing the
           non-max suppressed boxes.
