@@ -18,8 +18,8 @@ import cv2
 # sys.path.append("..")
 from object_detection.utils import ops as utils_ops
 
-if tf.__version__ < '1.4.0':
-    raise ImportError('Please upgrade your tensorflow installation to v1.4.* or later!')
+# if tf.__version__ < '1.4.0':
+#     raise ImportError('Please upgrade your tensorflow installation to v1.4.* or later!')
 
 
 # imports from the object detection module.
@@ -41,7 +41,7 @@ from object_detection.utils import visualization_utils as vis_util
 # What model to download.
 # MODEL_NAME = 'checkpoints/mask_rcnn_resnet101_atrous_coco_2018_01_28'
 # MODEL_NAME = 'checkpoints/excavator_2018-07-30'
-MODEL_NAME = 'checkpoints/mot'
+MODEL_NAME = 'checkpoints/mot_2018-08-17'
 # MODEL_FILE = MODEL_NAME + '.tar.gz'
 # DOWNLOAD_BASE = 'http://download.tensorflow.org/models/object_detection/'
 
@@ -103,9 +103,9 @@ def load_image_into_numpy_array(image):
 # image2.jpg
 # If you want to test the code with your images, just add path to the images to the TEST_IMAGE_PATHS.
 # PATH_TO_TEST_IMAGES_DIR = '/home/ace19/dl_data/KDP/test_images'
-PATH_TO_TEST_IMAGES_DIR = '/home/ace19/dl_data/MOT/MOT17/test/MOT17-03/img1'
+PATH_TO_TEST_IMAGES_DIR = '/home/ace19/dl_data/MOT/MOT17/test/sample-test'
 # PATH_TO_INFERENCE_SAVE_DIR = '/home/ace19/training_record/KDP/records/result-20180803/inference_result'
-PATH_TO_INFERENCE_SAVE_DIR = '/home/ace19/training_record/MOT/records/result_det_file-20180816/MOT17-03'
+PATH_TO_INFERENCE_SAVE_DIR = '/home/ace19/training_record/MOT/results/result-20180817/inference_result'
 # TEST_IMAGE_PATHS = [ os.path.join(PATH_TO_TEST_IMAGES_DIR, '{}.JPG'.format(i)) for i in range(1, 11) ]
 image_names = os.listdir(PATH_TO_TEST_IMAGES_DIR)
 image_names.sort()
