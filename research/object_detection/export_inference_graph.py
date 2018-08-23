@@ -114,7 +114,7 @@ flags.DEFINE_string('pipeline_config_path', 'models/model/faster_rcnn_resnet50_c
                     'Path to a pipeline_pb2.TrainEvalPipelineConfig config '
                     'file.')
 flags.DEFINE_string('trained_checkpoint_prefix',
-                    'checkpoints/mot_2018-08-17/model.ckpt-329488',
+                    'checkpoints/mot_2018-08-17/model.ckpt-325846',
                     'Path to trained checkpoint, typically of the form path/to/model.ckpt')
 flags.DEFINE_string('output_directory', 'checkpoints/mot_2018-08-17',
                     'Path to write outputs.')
