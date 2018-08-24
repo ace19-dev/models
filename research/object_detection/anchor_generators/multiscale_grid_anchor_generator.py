@@ -13,7 +13,6 @@
 # limitations under the License.
 # ==============================================================================
 """Generates grid anchors on the fly corresponding to multiple CNN layers.
-
 Generates grid anchors on the fly corresponding to multiple CNN layers as
 described in:
 "Focal Loss for Dense Object Detection" (https://arxiv.org/abs/1708.02002)
@@ -31,14 +30,12 @@ class MultiscaleGridAnchorGenerator(anchor_generator.AnchorGenerator):
   def __init__(self, min_level, max_level, anchor_scale, aspect_ratios,
                scales_per_octave, normalize_coordinates=True):
     """Constructs a MultiscaleGridAnchorGenerator.
-
     To construct anchors, at multiple scale resolutions, one must provide a
     the minimum level and maximum levels on a scale pyramid. To define the size
     of anchor, the anchor scale is provided to decide the size relatively to the
     stride of the corresponding feature map. The generator allows one pixel
     location on feature map maps to multiple anchors, that have different aspect
     ratios and intermediate scales.
-
     Args:
       min_level: minimum level in feature pyramid.
       max_level: maximum level in feature pyramid.
@@ -74,7 +71,6 @@ class MultiscaleGridAnchorGenerator(anchor_generator.AnchorGenerator):
 
   def num_anchors_per_location(self):
     """Returns the number of anchors per spatial location.
-
     Returns:
       a list of integers, one for each expected feature map to be passed to
       the Generate function.
@@ -84,10 +80,8 @@ class MultiscaleGridAnchorGenerator(anchor_generator.AnchorGenerator):
 
   def _generate(self, feature_map_shape_list, im_height=1, im_width=1):
     """Generates a collection of bounding boxes to be used as anchors.
-
     Currently we require the input image shape to be statically defined.  That
     is, im_height and im_width should be integers rather than tensors.
-
     Args:
       feature_map_shape_list: list of pairs of convnet layer resolutions in the
         format [(height_0, width_0), (height_1, width_1), ...]. For example,
@@ -99,7 +93,6 @@ class MultiscaleGridAnchorGenerator(anchor_generator.AnchorGenerator):
       im_width: the width of the image to generate the grid for. If both
         im_height and im_width are 1, anchors can only be generated in
         absolute coordinates.
-
     Returns:
       boxes_list: a list of BoxLists each holding anchor boxes corresponding to
         the input feature map shapes.
