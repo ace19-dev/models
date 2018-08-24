@@ -72,7 +72,7 @@ flags.DEFINE_string('train_dir',
                     'Directory to save the checkpoints and training summaries.')
 
 flags.DEFINE_string('pipeline_config_path',
-                    '/home/ace19/my-repo/models/research/object_detection/models/model/faster_rcnn_resnet50_coco.config',
+                    '/home/ace19/my-repo/models/research/object_detection/models/model/ssd_resnet50_v1_fpn_shared_box_predictor_640x640_coco14_sync.config',
                     'Path to a pipeline_pb2.TrainEvalPipelineConfig config '
                     'file. If provided, other configs are ignored')
 
