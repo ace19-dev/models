@@ -103,7 +103,7 @@ def load_image_into_numpy_array(image):
 # image2.jpg
 # If you want to test the code with your images, just add path to the images to the TEST_IMAGE_PATHS.
 # PATH_TO_TEST_IMAGES_DIR = '/home/ace19/dl_data/KDP/test_images'
-subfolder_name = "MOT17-14"
+subfolder_name = "MOT17-06"
 PATH_TO_TEST_IMAGES_DIR = '/home/ace19/dl_data/MOT/MOT17/test/' + subfolder_name + '/img1'
 # PATH_TO_TEST_IMAGES_DIR = '/home/ace19/dl_data/MOT/MOT17/test/sample-test'
 # PATH_TO_INFERENCE_SAVE_DIR = '/home/ace19/training_record/KDP/records/result-20180803/inference_result'

@@ -38,6 +38,10 @@ def define_wide_deep_flags():
   """Add supervised learning flags, as well as wide-deep model type."""
   flags_core.define_base()
   flags_core.define_benchmark()
+  flags_core.define_performance(
+      num_parallel_calls=False, inter_op=True, intra_op=True,
+      synthetic_data=False, max_train_steps=False, dtype=False,
+      all_reduce_alg=False)
 
   flags.adopt_module_key_flags(flags_core)
 
@@ -78,7 +82,9 @@ def run_loop(name, train_input_fn, eval_input_fn, model_column_fn,
   model_helpers.apply_clean(flags.FLAGS)
   model = build_estimator_fn(
       model_dir=flags_obj.model_dir, model_type=flags_obj.model_type,
-      model_column_fn=model_column_fn)
+      model_column_fn=model_column_fn,
+      inter_op=flags_obj.inter_op_parallelism_threads,
+      intra_op=flags_obj.intra_op_parallelism_threads)
 
   run_params = {
       'batch_size': flags_obj.batch_size,

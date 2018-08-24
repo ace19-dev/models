@@ -68,7 +68,7 @@ flags.DEFINE_integer('ps_tasks', 0,
                      'Number of parameter server tasks. If None, does not use '
                      'a parameter server.')
 flags.DEFINE_string('train_dir',
-                    '/home/ace19/my-repo/models/research/object_detection/checkpoints/mot_2018-08-23',
+                    '/home/ace19/my-repo/models/research/object_detection/checkpoints/mot_2018-08-24',
                     'Directory to save the checkpoints and training summaries.')
 
 flags.DEFINE_string('pipeline_config_path',
