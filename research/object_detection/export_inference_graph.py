@@ -102,6 +102,7 @@ flags = tf.app.flags
 flags.DEFINE_string('input_type', 'image_tensor', 'Type of input node. Can be '
                     'one of [`image_tensor`, `encoded_image_string_tensor`, '
                     '`tf_example`]')
+
 flags.DEFINE_string('input_shape', None,
                     'If input_type is `image_tensor`, this can explicitly set '
                     'the shape of this input tensor to a fixed size. The '
@@ -110,19 +111,29 @@ flags.DEFINE_string('input_shape', None,
                     'dimensions. If not specified, for an `image_tensor, the '
                     'default shape will be partially specified as '
                     '`[None, None, None, 3]`.')
-flags.DEFINE_string('pipeline_config_path', 'models/model/ssd_resnet50_v1_fpn_shared_box_predictor_640x640_coco14_sync.config',
-                    'Path to a pipeline_pb2.TrainEvalPipelineConfig config '
-                    'file.')
+
+flags.DEFINE_string('pipeline_config_path',
+                    # 'models/model/ssd_resnet50_v1_fpn_shared_box_predictor_640x640_coco14_sync.config',
+                    'samples/configs/ssd_resnet50_v1_fpn_shared_box_predictor_640x640_coco14_sync.config',
+                    'Path to a pipeline_pb2.TrainEvalPipelineConfig config file.')
+
 flags.DEFINE_string('trained_checkpoint_prefix',
-                    'checkpoints/mot_2018-08-24/model.ckpt-588',
+                    # 'checkpoints/mot_2018-08-24/model.ckpt-588',
+                    'checkpoints/ssd_resnet50_v1_fpn_shared_box_predictor_640x640_coco14_sync_2018_07_03/model.ckpt',
                     'Path to trained checkpoint, typically of the form path/to/model.ckpt')
-flags.DEFINE_string('output_directory', 'checkpoints/mot_2018-08-24',
+
+flags.DEFINE_string('output_directory',
+                    # 'checkpoints/mot_2018-08-24',
+                    'checkpoints/ssd',
                     'Path to write outputs.')
+
 flags.DEFINE_string('config_override', '',
                     'pipeline_pb2.TrainEvalPipelineConfig '
                     'text proto to override pipeline_config_path.')
+
 flags.DEFINE_boolean('write_inference_graph', False,
                      'If true, writes inference graph to disk.')
+
 tf.app.flags.mark_flag_as_required('pipeline_config_path')
 tf.app.flags.mark_flag_as_required('trained_checkpoint_prefix')
 tf.app.flags.mark_flag_as_required('output_directory')
