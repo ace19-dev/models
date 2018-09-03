@@ -113,17 +113,17 @@ flags.DEFINE_string('input_shape', None,
                     '`[None, None, None, 3]`.')
 
 flags.DEFINE_string('pipeline_config_path',
-                    'models/model/ssd_resnet50_v1_fpn_shared_box_predictor_640x640_coco14_sync.config',
-                    # 'samples/configs/ssd_resnet50_v1_fpn_shared_box_predictor_640x640_coco14_sync.config',
+                    'models/model/faster_rcnn_resnet50_coco.config',
+                    # 'models/model/ssd_resnet50_v1_fpn_shared_box_predictor_640x640_coco14_sync.config',
                     'Path to a pipeline_pb2.TrainEvalPipelineConfig config file.')
 
 flags.DEFINE_string('trained_checkpoint_prefix',
-                    'checkpoints/mot_2018-08-24/model.ckpt-709',
+                    'checkpoints/mot_2018-08-28/model.ckpt-450000',
                     # 'checkpoints/ssd_resnet50_v1_fpn_shared_box_predictor_640x640_coco14_sync_2018_07_03/model.ckpt',
                     'Path to trained checkpoint, typically of the form path/to/model.ckpt')
 
 flags.DEFINE_string('output_directory',
-                    'checkpoints/mot_2018-08-24',
+                    'checkpoints/mot_2018-08-28',
                     # 'checkpoints/ssd',
                     'Path to write outputs.')
 
