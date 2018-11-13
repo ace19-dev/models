@@ -610,7 +610,7 @@ def run_transformer(flags_obj):
       bleu_threshold=flags_obj.stop_threshold,
       vocab_file=flags_obj.vocab_file)
 
-  if flags_obj.export_dir:
+  if flags_obj.export_dir and not params["use_tpu"]:
     serving_input_fn = export.build_tensor_serving_input_receiver_fn(
         shape=[None], dtype=tf.int64, batch_size=None)
     # Export saved model, and save the vocab file as an extra asset. The vocab
@@ -621,7 +621,8 @@ def run_transformer(flags_obj):
     # an extra asset rather than a core asset.
     estimator.export_savedmodel(
         flags_obj.export_dir, serving_input_fn,
-        assets_extra={"vocab.txt": flags_obj.vocab_file})
+        assets_extra={"vocab.txt": flags_obj.vocab_file},
+        strip_default_attrs=True)
 
 
 def main(_):

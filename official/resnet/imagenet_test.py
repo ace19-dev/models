@@ -191,9 +191,9 @@ class BaseTest(tf.test.TestCase):
     """Tests that the EstimatorSpec is given the appropriate arguments."""
     tf.train.create_global_step()
 
-    input_fn = imagenet_main.get_synth_input_fn()
+    input_fn = imagenet_main.get_synth_input_fn(dtype)
     dataset = input_fn(True, '', _BATCH_SIZE)
-    iterator = dataset.make_one_shot_iterator()
+    iterator = dataset.make_initializable_iterator()
     features, labels = iterator.get_next()
     spec = imagenet_main.imagenet_model_fn(
         features, labels, mode, {
@@ -303,13 +303,6 @@ class BaseTest(tf.test.TestCase):
         main=imagenet_main.run_imagenet, tmp_root=self.get_temp_dir(),
         extra_flags=['-resnet_version', '2', '-resnet_size', '200']
     )
-
-  def test_flag_restriction(self):
-    with self.assertRaises(SystemExit):
-      integration.run_synthetic(
-          main=imagenet_main.run_imagenet, tmp_root=self.get_temp_dir(),
-          extra_flags=['-resnet_version', '1', '-dtype', 'fp16']
-      )
 
 
 if __name__ == '__main__':

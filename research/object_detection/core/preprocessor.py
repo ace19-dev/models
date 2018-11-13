@@ -810,9 +810,11 @@ def random_image_scale(image,
     image = tf.image.resize_images(
         image, [image_newysize, image_newxsize], align_corners=True)
     result.append(image)
-    if masks:
-      masks = tf.image.resize_nearest_neighbor(
-          masks, [image_newysize, image_newxsize], align_corners=True)
+    if masks is not None:
+      masks = tf.image.resize_images(
+          masks, [image_newysize, image_newxsize],
+          method=tf.image.ResizeMethod.NEAREST_NEIGHBOR,
+          align_corners=True)
       result.append(masks)
     return tuple(result)
 
@@ -1106,7 +1108,7 @@ def random_jitter_boxes(boxes, ratio=0.05, seed=None):
 def _strict_random_crop_image(image,
                               boxes,
                               labels,
-                              label_scores=None,
+                              label_scores,
                               multiclass_scores=None,
                               masks=None,
                               keypoints=None,
@@ -1114,14 +1116,14 @@ def _strict_random_crop_image(image,
                               aspect_ratio_range=(0.75, 1.33),
                               area_range=(0.1, 1.0),
                               overlap_thresh=0.3,
+                              clip_boxes=True,
                               preprocess_vars_cache=None):
   """Performs random crop.
 
-  Note: boxes will be clipped to the crop. Keypoint coordinates that are
-  outside the crop will be set to NaN, which is consistent with the original
-  keypoint encoding for non-existing keypoints. This function always crops
-  the image and is supposed to be used by `random_crop_image` function which
-  sometimes returns image unchanged.
+  Note: Keypoint coordinates that are outside the crop will be set to NaN, which
+  is consistent with the original keypoint encoding for non-existing keypoints.
+  This function always crops the image and is supposed to be used by
+  `random_crop_image` function which sometimes returns the image unchanged.
 
   Args:
     image: rank 3 float32 tensor containing 1 image -> [height, width, channels]
@@ -1150,6 +1152,7 @@ def _strict_random_crop_image(image,
                 original image.
     overlap_thresh: minimum overlap thresh with new cropped
                     image to keep the box.
+    clip_boxes: whether to clip the boxes to the cropped image.
     preprocess_vars_cache: PreprocessorCache object that records previously
                            performed augmentations. Updated in-place. If this
                            function is called multiple times with the same
@@ -1230,8 +1233,9 @@ def _strict_random_crop_image(image,
     new_boxlist = box_list_ops.change_coordinate_frame(overlapping_boxlist,
                                                        im_box_rank1)
     new_boxes = new_boxlist.get()
-    new_boxes = tf.clip_by_value(
-        new_boxes, clip_value_min=0.0, clip_value_max=1.0)
+    if clip_boxes:
+      new_boxes = tf.clip_by_value(
+          new_boxes, clip_value_min=0.0, clip_value_max=1.0)
 
     result = [new_image, new_boxes, new_labels]
 
@@ -1260,8 +1264,9 @@ def _strict_random_crop_image(image,
           keypoints_of_boxes_inside_window, keep_ids)
       new_keypoints = keypoint_ops.change_coordinate_frame(
           keypoints_of_boxes_completely_inside_window, im_box_rank1)
-      new_keypoints = keypoint_ops.prune_outside_window(new_keypoints,
-                                                        [0.0, 0.0, 1.0, 1.0])
+      if clip_boxes:
+        new_keypoints = keypoint_ops.prune_outside_window(new_keypoints,
+                                                          [0.0, 0.0, 1.0, 1.0])
       result.append(new_keypoints)
 
     return tuple(result)
@@ -1278,6 +1283,7 @@ def random_crop_image(image,
                       aspect_ratio_range=(0.75, 1.33),
                       area_range=(0.1, 1.0),
                       overlap_thresh=0.3,
+                      clip_boxes=True,
                       random_coef=0.0,
                       seed=None,
                       preprocess_vars_cache=None):
@@ -1292,9 +1298,8 @@ def random_crop_image(image,
   form (e.g., lie in the unit square [0, 1]).
   This function will return the original image with probability random_coef.
 
-  Note: boxes will be clipped to the crop. Keypoint coordinates that are
-  outside the crop will be set to NaN, which is consistent with the original
-  keypoint encoding for non-existing keypoints.
+  Note: Keypoint coordinates that are outside the crop will be set to NaN, which
+  is consistent with the original keypoint encoding for non-existing keypoints.
 
   Args:
     image: rank 3 float32 tensor contains 1 image -> [height, width, channels]
@@ -1323,6 +1328,7 @@ def random_crop_image(image,
                 original image.
     overlap_thresh: minimum overlap thresh with new cropped
                     image to keep the box.
+    clip_boxes: whether to clip the boxes to the cropped image.
     random_coef: a random coefficient that defines the chance of getting the
                  original image. If random_coef is 0, we will always get the
                  cropped image, and if it is 1.0, we will always get the
@@ -1363,6 +1369,7 @@ def random_crop_image(image,
         aspect_ratio_range=aspect_ratio_range,
         area_range=area_range,
         overlap_thresh=overlap_thresh,
+        clip_boxes=clip_boxes,
         preprocess_vars_cache=preprocess_vars_cache)
 
   # avoids tf.cond to make faster RCNN training on borg. See b/140057645.
@@ -1513,12 +1520,13 @@ def random_pad_image(image,
 def random_crop_pad_image(image,
                           boxes,
                           labels,
-                          label_scores=None,
+                          label_scores,
                           multiclass_scores=None,
                           min_object_covered=1.0,
                           aspect_ratio_range=(0.75, 1.33),
                           area_range=(0.1, 1.0),
                           overlap_thresh=0.3,
+                          clip_boxes=True,
                           random_coef=0.0,
                           min_padded_size_ratio=(1.0, 1.0),
                           max_padded_size_ratio=(2.0, 2.0),
@@ -1556,6 +1564,7 @@ def random_crop_pad_image(image,
                 original image.
     overlap_thresh: minimum overlap thresh with new cropped
                     image to keep the box.
+    clip_boxes: whether to clip the boxes to the cropped image.
     random_coef: a random coefficient that defines the chance of getting the
                  original image. If random_coef is 0, we will always get the
                  cropped image, and if it is 1.0, we will always get the
@@ -1597,6 +1606,7 @@ def random_crop_pad_image(image,
       aspect_ratio_range=aspect_ratio_range,
       area_range=area_range,
       overlap_thresh=overlap_thresh,
+      clip_boxes=clip_boxes,
       random_coef=random_coef,
       seed=seed,
       preprocess_vars_cache=preprocess_vars_cache)
@@ -1637,12 +1647,13 @@ def random_crop_pad_image(image,
 def random_crop_to_aspect_ratio(image,
                                 boxes,
                                 labels,
-                                label_scores=None,
+                                label_scores,
                                 multiclass_scores=None,
                                 masks=None,
                                 keypoints=None,
                                 aspect_ratio=1.0,
                                 overlap_thresh=0.3,
+                                clip_boxes=True,
                                 seed=None,
                                 preprocess_vars_cache=None):
   """Randomly crops an image to the specified aspect ratio.
@@ -1678,6 +1689,7 @@ def random_crop_to_aspect_ratio(image,
     aspect_ratio: the aspect ratio of cropped image.
     overlap_thresh: minimum overlap thresh with new cropped
                     image to keep the box.
+    clip_boxes: whether to clip the boxes to the cropped image.
     seed: random seed.
     preprocess_vars_cache: PreprocessorCache object that records previously
                            performed augmentations. Updated in-place. If this
@@ -1765,9 +1777,9 @@ def random_crop_to_aspect_ratio(image,
     new_labels = overlapping_boxlist.get_field('labels')
     new_boxlist = box_list_ops.change_coordinate_frame(overlapping_boxlist,
                                                        im_box)
-    new_boxlist = box_list_ops.clip_to_window(new_boxlist,
-                                              tf.constant([0.0, 0.0, 1.0, 1.0],
-                                                          tf.float32))
+    if clip_boxes:
+      new_boxlist = box_list_ops.clip_to_window(
+          new_boxlist, tf.constant([0.0, 0.0, 1.0, 1.0], tf.float32))
     new_boxes = new_boxlist.get()
 
     result = [new_image, new_boxes, new_labels]
@@ -1791,8 +1803,9 @@ def random_crop_to_aspect_ratio(image,
       keypoints_inside_window = tf.gather(keypoints, keep_ids)
       new_keypoints = keypoint_ops.change_coordinate_frame(
           keypoints_inside_window, im_box)
-      new_keypoints = keypoint_ops.prune_outside_window(new_keypoints,
-                                                        [0.0, 0.0, 1.0, 1.0])
+      if clip_boxes:
+        new_keypoints = keypoint_ops.prune_outside_window(new_keypoints,
+                                                          [0.0, 0.0, 1.0, 1.0])
       result.append(new_keypoints)
 
     return tuple(result)
@@ -2415,7 +2428,7 @@ def rgb_to_gray(image):
 def ssd_random_crop(image,
                     boxes,
                     labels,
-                    label_scores=None,
+                    label_scores,
                     multiclass_scores=None,
                     masks=None,
                     keypoints=None,
@@ -2423,6 +2436,7 @@ def ssd_random_crop(image,
                     aspect_ratio_range=((0.5, 2.0),) * 7,
                     area_range=((0.1, 1.0),) * 7,
                     overlap_thresh=(0.0, 0.1, 0.3, 0.5, 0.7, 0.9, 1.0),
+                    clip_boxes=(True,) * 7,
                     random_coef=(0.15,) * 7,
                     seed=None,
                     preprocess_vars_cache=None):
@@ -2457,6 +2471,7 @@ def ssd_random_crop(image,
                 original image.
     overlap_thresh: minimum overlap thresh with new cropped
                     image to keep the box.
+    clip_boxes: whether to clip the boxes to the cropped image.
     random_coef: a random coefficient that defines the chance of getting the
                  original image. If random_coef is 0, we will always get the
                  cropped image, and if it is 1.0, we will always get the
@@ -2526,6 +2541,7 @@ def ssd_random_crop(image,
         aspect_ratio_range=aspect_ratio_range[index],
         area_range=area_range[index],
         overlap_thresh=overlap_thresh[index],
+        clip_boxes=clip_boxes[index],
         random_coef=random_coef[index],
         seed=seed,
         preprocess_vars_cache=preprocess_vars_cache)
@@ -2544,12 +2560,13 @@ def ssd_random_crop(image,
 def ssd_random_crop_pad(image,
                         boxes,
                         labels,
-                        label_scores=None,
+                        label_scores,
                         multiclass_scores=None,
                         min_object_covered=(0.1, 0.3, 0.5, 0.7, 0.9, 1.0),
                         aspect_ratio_range=((0.5, 2.0),) * 6,
                         area_range=((0.1, 1.0),) * 6,
                         overlap_thresh=(0.1, 0.3, 0.5, 0.7, 0.9, 1.0),
+                        clip_boxes=(True,) * 6,
                         random_coef=(0.15,) * 6,
                         min_padded_size_ratio=((1.0, 1.0),) * 6,
                         max_padded_size_ratio=((2.0, 2.0),) * 6,
@@ -2582,6 +2599,7 @@ def ssd_random_crop_pad(image,
                 original image.
     overlap_thresh: minimum overlap thresh with new cropped
                     image to keep the box.
+    clip_boxes: whether to clip the boxes to the cropped image.
     random_coef: a random coefficient that defines the chance of getting the
                  original image. If random_coef is 0, we will always get the
                  cropped image, and if it is 1.0, we will always get the
@@ -2629,6 +2647,7 @@ def ssd_random_crop_pad(image,
         aspect_ratio_range=aspect_ratio_range[index],
         area_range=area_range[index],
         overlap_thresh=overlap_thresh[index],
+        clip_boxes=clip_boxes[index],
         random_coef=random_coef[index],
         min_padded_size_ratio=min_padded_size_ratio[index],
         max_padded_size_ratio=max_padded_size_ratio[index],
@@ -2649,7 +2668,7 @@ def ssd_random_crop_fixed_aspect_ratio(
     image,
     boxes,
     labels,
-    label_scores=None,
+    label_scores,
     multiclass_scores=None,
     masks=None,
     keypoints=None,
@@ -2657,6 +2676,7 @@ def ssd_random_crop_fixed_aspect_ratio(
     aspect_ratio=1.0,
     area_range=((0.1, 1.0),) * 7,
     overlap_thresh=(0.0, 0.1, 0.3, 0.5, 0.7, 0.9, 1.0),
+    clip_boxes=(True,) * 7,
     random_coef=(0.15,) * 7,
     seed=None,
     preprocess_vars_cache=None):
@@ -2694,6 +2714,7 @@ def ssd_random_crop_fixed_aspect_ratio(
                 original image.
     overlap_thresh: minimum overlap thresh with new cropped
                     image to keep the box.
+    clip_boxes: whether to clip the boxes to the cropped image.
     random_coef: a random coefficient that defines the chance of getting the
                  original image. If random_coef is 0, we will always get the
                  cropped image, and if it is 1.0, we will always get the
@@ -2734,6 +2755,7 @@ def ssd_random_crop_fixed_aspect_ratio(
       aspect_ratio_range=aspect_ratio_range,
       area_range=area_range,
       overlap_thresh=overlap_thresh,
+      clip_boxes=clip_boxes,
       random_coef=random_coef,
       seed=seed,
       preprocess_vars_cache=preprocess_vars_cache)
@@ -2764,6 +2786,7 @@ def ssd_random_crop_fixed_aspect_ratio(
       masks=new_masks,
       keypoints=new_keypoints,
       aspect_ratio=aspect_ratio,
+      clip_boxes=clip_boxes,
       seed=seed,
       preprocess_vars_cache=preprocess_vars_cache)
 
@@ -2774,7 +2797,7 @@ def ssd_random_crop_pad_fixed_aspect_ratio(
     image,
     boxes,
     labels,
-    label_scores=None,
+    label_scores,
     multiclass_scores=None,
     masks=None,
     keypoints=None,
@@ -2783,6 +2806,7 @@ def ssd_random_crop_pad_fixed_aspect_ratio(
     aspect_ratio_range=((0.5, 2.0),) * 7,
     area_range=((0.1, 1.0),) * 7,
     overlap_thresh=(0.0, 0.1, 0.3, 0.5, 0.7, 0.9, 1.0),
+    clip_boxes=(True,) * 7,
     random_coef=(0.15,) * 7,
     min_padded_size_ratio=(1.0, 1.0),
     max_padded_size_ratio=(2.0, 2.0),
@@ -2824,6 +2848,7 @@ def ssd_random_crop_pad_fixed_aspect_ratio(
                 original image.
     overlap_thresh: minimum overlap thresh with new cropped
                     image to keep the box.
+    clip_boxes: whether to clip the boxes to the cropped image.
     random_coef: a random coefficient that defines the chance of getting the
                  original image. If random_coef is 0, we will always get the
                  cropped image, and if it is 1.0, we will always get the
@@ -2865,6 +2890,7 @@ def ssd_random_crop_pad_fixed_aspect_ratio(
       aspect_ratio_range=aspect_ratio_range,
       area_range=area_range,
       overlap_thresh=overlap_thresh,
+      clip_boxes=clip_boxes,
       random_coef=random_coef,
       seed=seed,
       preprocess_vars_cache=preprocess_vars_cache)
@@ -2933,7 +2959,7 @@ def convert_class_logits_to_softmax(multiclass_scores, temperature=1.0):
   return multiclass_scores
 
 
-def get_default_func_arg_map(include_label_scores=False,
+def get_default_func_arg_map(include_label_scores=True,
                              include_multiclass_scores=False,
                              include_instance_masks=False,
                              include_keypoints=False):
@@ -2954,7 +2980,8 @@ def get_default_func_arg_map(include_label_scores=False,
   """
   groundtruth_label_scores = None
   if include_label_scores:
-    groundtruth_label_scores = (fields.InputDataFields.groundtruth_label_scores)
+    groundtruth_label_scores = (
+        fields.InputDataFields.groundtruth_weights)
 
   multiclass_scores = None
   if include_multiclass_scores:

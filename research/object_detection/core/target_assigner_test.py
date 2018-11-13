@@ -52,7 +52,7 @@ class TargetAssignerTest(test_case.TestCase):
                                         [0.5, 0.5, 0.9, 0.9]],
                                        dtype=np.float32)
     exp_cls_targets = [[1], [1], [0]]
-    exp_cls_weights = [1, 1, 1]
+    exp_cls_weights = [[1], [1], [1]]
     exp_reg_targets = [[0, 0, 0, 0],
                        [0, 0, -1, 1],
                        [0, 0, 0, 0]]
@@ -96,7 +96,7 @@ class TargetAssignerTest(test_case.TestCase):
     groundtruth_box_corners = np.array([[0.0, 0.0, 0.5, 0.5],
                                         [0.5, 0.5, 0.9, 0.9]], dtype=np.float32)
     exp_cls_targets = [[1], [1], [0]]
-    exp_cls_weights = [1, 1, 0]
+    exp_cls_weights = [[1], [1], [0]]
     exp_reg_targets = [[0, 0, 0, 0],
                        [0, 0, -1, 1],
                        [0, 0, 0, 0]]
@@ -143,7 +143,7 @@ class TargetAssignerTest(test_case.TestCase):
          [[0, 0.3], [0.2, 0.4], [0.5, 0.6], [0, 0.6], [0.8, 0.2], [0.2, 0.4]]],
         dtype=np.float32)
     exp_cls_targets = [[1], [1], [0]]
-    exp_cls_weights = [1, 1, 1]
+    exp_cls_weights = [[1], [1], [1]]
     exp_reg_targets = [[0, 0, 0, 0, -3, -1, -3, 1, -1, -1, -1, -1, -3, -3, 13,
                         -5],
                        [-1, -1, 0, 0, -15, -9, -11, -7, -5, -3, -15, -3, 1, -11,
@@ -198,7 +198,7 @@ class TargetAssignerTest(test_case.TestCase):
          [[0, 0.3], [0.2, 0.4], [0.5, 0.6], [0, 0.6], [0.8, 0.2], [0.2, 0.4]]],
         dtype=np.float32)
     exp_cls_targets = [[1], [1], [0]]
-    exp_cls_weights = [1, 1, 1]
+    exp_cls_weights = [[1], [1], [1]]
     exp_reg_targets = [[0, 0, 0, 0, -3, -1, -3, 1, -1, -1, -1, -1, -3, -3, 13,
                         -5],
                        [-1, -1, 0, 0, -15, -9, -11, -7, -5, -3, -15, -3, 1, -11,
@@ -254,7 +254,10 @@ class TargetAssignerTest(test_case.TestCase):
                        [0, 0, 0, 0, 0, 1, 0],
                        [1, 0, 0, 0, 0, 0, 0],
                        [0, 0, 0, 1, 0, 0, 0]]
-    exp_cls_weights = [1, 1, 1, 1]
+    exp_cls_weights = [[1, 1, 1, 1, 1, 1, 1],
+                       [1, 1, 1, 1, 1, 1, 1],
+                       [1, 1, 1, 1, 1, 1, 1],
+                       [1, 1, 1, 1, 1, 1, 1]]
     exp_reg_targets = [[0, 0, 0, 0],
                        [0, 0, -1, 1],
                        [0, 0, 0, 0],
@@ -308,7 +311,11 @@ class TargetAssignerTest(test_case.TestCase):
                                    [0, 0, 0, 1, 0, 0, 0]], dtype=np.float32)
     groundtruth_weights = np.array([0.3, 0., 0.5], dtype=np.float32)
 
-    exp_cls_weights = [0.3, 0., 1, 0.5]   # background class gets weight of 1.
+    # background class gets weight of 1.
+    exp_cls_weights = [[0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3],
+                       [0, 0, 0, 0, 0, 0, 0],
+                       [1, 1, 1, 1, 1, 1, 1],
+                       [0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5]]
     exp_reg_weights = [0.3, 0., 0., 0.5]  # background class gets weight of 0.
 
     (cls_weights_out, reg_weights_out) = self.execute(graph_fn, [
@@ -354,7 +361,11 @@ class TargetAssignerTest(test_case.TestCase):
          [.5, 0, 0, .5, 0, 0, 0]],
         dtype=np.float32)
 
-    exp_cls_weights = [1, 1, 1, 1]  # background class gets weight of 1.
+    exp_cls_weights = [
+        [1, 1, 1, 1, 1, 1, 1],
+        [1, 1, 1, 1, 1, 1, 1],
+        [1, 1, 1, 1, 1, 1, 1],
+        [1, 1, 1, 1, 1, 1, 1]]  # background class gets weight of 1.
     exp_reg_weights = [.1, 1, 0., .5]  # background class gets weight of 0.
 
     (cls_weights_out, reg_weights_out) = self.execute(
@@ -400,7 +411,10 @@ class TargetAssignerTest(test_case.TestCase):
                        [[1, 0], [0, 1]],
                        [[0, 0], [0, 0]],
                        [[0, 1], [1, .5]]]
-    exp_cls_weights = [1, 1, 1, 1]
+    exp_cls_weights = [[[1, 1], [1, 1]],
+                       [[1, 1], [1, 1]],
+                       [[1, 1], [1, 1]],
+                       [[1, 1], [1, 1]]]
     exp_reg_targets = [[0, 0, 0, 0],
                        [0, 0, -1, 1],
                        [0, 0, 0, 0],
@@ -449,7 +463,10 @@ class TargetAssignerTest(test_case.TestCase):
                        [0, 0, 0],
                        [0, 0, 0],
                        [0, 0, 0]]
-    exp_cls_weights = [1, 1, 1, 1]
+    exp_cls_weights = [[1, 1, 1],
+                       [1, 1, 1],
+                       [1, 1, 1],
+                       [1, 1, 1]]
     exp_reg_targets = [[0, 0, 0, 0],
                        [0, 0, 0, 0],
                        [0, 0, 0, 0],
@@ -495,8 +512,7 @@ class TargetAssignerTest(test_case.TestCase):
           priors,
           boxes,
           groundtruth_labels,
-          unmatched_class_label=unmatched_class_label,
-          num_valid_rows=3)
+          unmatched_class_label=unmatched_class_label)
 
   def test_raises_error_on_invalid_groundtruth_labels(self):
     similarity_calc = region_similarity_calculator.NegSqDistSimilarity()
@@ -520,8 +536,7 @@ class TargetAssignerTest(test_case.TestCase):
           priors,
           boxes,
           groundtruth_labels,
-          unmatched_class_label=unmatched_class_label,
-          num_valid_rows=3)
+          unmatched_class_label=unmatched_class_label)
 
 
 class BatchTargetAssignerTest(test_case.TestCase):
@@ -557,6 +572,10 @@ class BatchTargetAssignerTest(test_case.TestCase):
                              [0, .1, .5, .5],
                              [.75, .75, 1, 1]], dtype=np.float32)
 
+    exp_cls_targets = [[[1], [0], [0], [0]],
+                       [[0], [1], [1], [0]]]
+    exp_cls_weights = [[[1], [1], [1], [1]],
+                       [[1], [1], [1], [1]]]
     exp_reg_targets = [[[0, 0, -0.5, -0.5],
                         [0, 0, 0, 0],
                         [0, 0, 0, 0,],
@@ -565,10 +584,6 @@ class BatchTargetAssignerTest(test_case.TestCase):
                         [0, 0.01231521, 0, 0],
                         [0.15789001, -0.01500003, 0.57889998, -1.15799987],
                         [0, 0, 0, 0]]]
-    exp_cls_weights = [[1, 1, 1, 1],
-                       [1, 1, 1, 1]]
-    exp_cls_targets = [[[1], [0], [0], [0]],
-                       [[0], [1], [1], [0]]]
     exp_reg_weights = [[1, 0, 0, 0],
                        [0, 1, 1, 0]]
 
@@ -610,17 +625,6 @@ class BatchTargetAssignerTest(test_case.TestCase):
                              [0, .25, 1, 1],
                              [0, .1, .5, .5],
                              [.75, .75, 1, 1]], dtype=np.float32)
-
-    exp_reg_targets = [[[0, 0, -0.5, -0.5],
-                        [0, 0, 0, 0],
-                        [0, 0, 0, 0,],
-                        [0, 0, 0, 0,],],
-                       [[0, 0, 0, 0,],
-                        [0, 0.01231521, 0, 0],
-                        [0.15789001, -0.01500003, 0.57889998, -1.15799987],
-                        [0, 0, 0, 0]]]
-    exp_cls_weights = [[1, 1, 1, 1],
-                       [1, 1, 1, 1]]
     exp_cls_targets = [[[0, 1, 0, 0],
                         [1, 0, 0, 0],
                         [1, 0, 0, 0],
@@ -629,6 +633,22 @@ class BatchTargetAssignerTest(test_case.TestCase):
                         [0, 0, 0, 1],
                         [0, 0, 1, 0],
                         [1, 0, 0, 0]]]
+    exp_cls_weights = [[[1, 1, 1, 1],
+                        [1, 1, 1, 1],
+                        [1, 1, 1, 1],
+                        [1, 1, 1, 1]],
+                       [[1, 1, 1, 1],
+                        [1, 1, 1, 1],
+                        [1, 1, 1, 1],
+                        [1, 1, 1, 1]]]
+    exp_reg_targets = [[[0, 0, -0.5, -0.5],
+                        [0, 0, 0, 0],
+                        [0, 0, 0, 0,],
+                        [0, 0, 0, 0,],],
+                       [[0, 0, 0, 0,],
+                        [0, 0.01231521, 0, 0],
+                        [0.15789001, -0.01500003, 0.57889998, -1.15799987],
+                        [0, 0, 0, 0]]]
     exp_reg_weights = [[1, 0, 0, 0],
                        [0, 1, 1, 0]]
 
@@ -680,16 +700,6 @@ class BatchTargetAssignerTest(test_case.TestCase):
                              [0, .1, .5, .5],
                              [.75, .75, 1, 1]], dtype=np.float32)
 
-    exp_reg_targets = [[[0, 0, -0.5, -0.5],
-                        [0, 0, 0, 0],
-                        [0, 0, 0, 0,],
-                        [0, 0, 0, 0,],],
-                       [[0, 0, 0, 0,],
-                        [0, 0.01231521, 0, 0],
-                        [0.15789001, -0.01500003, 0.57889998, -1.15799987],
-                        [0, 0, 0, 0]]]
-    exp_cls_weights = [[1, 1, 1, 1],
-                       [1, 1, 1, 1]]
     exp_cls_targets = [[[0, 1, 0, 0],
                         [1, 0, 0, 0],
                         [1, 0, 0, 0],
@@ -698,6 +708,22 @@ class BatchTargetAssignerTest(test_case.TestCase):
                         [0, 0, 0, 1],
                         [0, 0, 1, 0],
                         [1, 0, 0, 0]]]
+    exp_cls_weights = [[[1, 1, 1, 1],
+                        [1, 1, 1, 1],
+                        [1, 1, 1, 1],
+                        [1, 1, 1, 1]],
+                       [[1, 1, 1, 1],
+                        [1, 1, 1, 1],
+                        [1, 1, 1, 1],
+                        [1, 1, 1, 1]]]
+    exp_reg_targets = [[[0, 0, -0.5, -0.5],
+                        [0, 0, 0, 0],
+                        [0, 0, 0, 0,],
+                        [0, 0, 0, 0,],],
+                       [[0, 0, 0, 0,],
+                        [0, 0.01231521, 0, 0],
+                        [0.15789001, -0.01500003, 0.57889998, -1.15799987],
+                        [0, 0, 0, 0]]]
     exp_reg_weights = [[1, 0, 0, 0],
                        [0, 1, 1, 0]]
 
@@ -750,16 +776,6 @@ class BatchTargetAssignerTest(test_case.TestCase):
                              [0, .1, .5, .5],
                              [.75, .75, 1, 1]], dtype=np.float32)
 
-    exp_reg_targets = [[[0, 0, -0.5, -0.5],
-                        [0, 0, 0, 0],
-                        [0, 0, 0, 0,],
-                        [0, 0, 0, 0,],],
-                       [[0, 0, 0, 0,],
-                        [0, 0.01231521, 0, 0],
-                        [0.15789001, -0.01500003, 0.57889998, -1.15799987],
-                        [0, 0, 0, 0]]]
-    exp_cls_weights = [[1, 1, 1, 1],
-                       [1, 1, 1, 1]]
     exp_cls_targets = [[[[0., 1., 1.],
                          [1., 1., 0.]],
                         [[0., 0., 0.],
@@ -776,6 +792,30 @@ class BatchTargetAssignerTest(test_case.TestCase):
                          [0., 0., 1.]],
                         [[0., 0., 0.],
                          [0., 0., 0.]]]]
+    exp_cls_weights = [[[[1., 1., 1.],
+                         [1., 1., 1.]],
+                        [[1., 1., 1.],
+                         [1., 1., 1.]],
+                        [[1., 1., 1.],
+                         [1., 1., 1.]],
+                        [[1., 1., 1.],
+                         [1., 1., 1.]]],
+                       [[[1., 1., 1.],
+                         [1., 1., 1.]],
+                        [[1., 1., 1.],
+                         [1., 1., 1.]],
+                        [[1., 1., 1.],
+                         [1., 1., 1.]],
+                        [[1., 1., 1.],
+                         [1., 1., 1.]]]]
+    exp_reg_targets = [[[0, 0, -0.5, -0.5],
+                        [0, 0, 0, 0],
+                        [0, 0, 0, 0,],
+                        [0, 0, 0, 0,],],
+                       [[0, 0, 0, 0,],
+                        [0, 0.01231521, 0, 0],
+                        [0.15789001, -0.01500003, 0.57889998, -1.15799987],
+                        [0, 0, 0, 0]]]
     exp_reg_weights = [[1, 0, 0, 0],
                        [0, 1, 1, 0]]
 
@@ -809,11 +849,12 @@ class BatchTargetAssignerTest(test_case.TestCase):
     groundtruth_box_corners = np.zeros((0, 4), dtype=np.float32)
     anchor_means = np.array([[0, 0, .25, .25],
                              [0, .25, 1, 1]], dtype=np.float32)
-    exp_reg_targets = [[[0, 0, 0, 0],
-                        [0, 0, 0, 0]]]
-    exp_cls_weights = [[1, 1]]
     exp_cls_targets = [[[1, 0, 0, 0],
                         [1, 0, 0, 0]]]
+    exp_cls_weights = [[[1, 1, 1, 1],
+                        [1, 1, 1, 1]]]
+    exp_reg_targets = [[[0, 0, 0, 0],
+                        [0, 0, 0, 0]]]
     exp_reg_weights = [[0, 0]]
     num_classes = 3
     pad = 1
