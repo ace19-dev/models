@@ -38,54 +38,55 @@ slim = tf.contrib.slim
 def create_input_queue(batch_size_per_clone, create_tensor_dict_fn,
                        batch_queue_capacity, num_batch_queue_threads,
                        prefetch_queue_capacity, data_augmentation_options):
-    """Sets up reader, prefetcher and returns input queue.
+  """Sets up reader, prefetcher and returns input queue.
 
-    Args:
-      batch_size_per_clone: batch size to use per clone.
-      create_tensor_dict_fn: function to create tensor dictionary.
-      batch_queue_capacity: maximum number of elements to store within a queue.
-      num_batch_queue_threads: number of threads to use for batching.
-      prefetch_queue_capacity: maximum capacity of the queue used to prefetch
-                               assembled batches.
-      data_augmentation_options: a list of tuples, where each tuple contains a
-        data augmentation function and a dictionary containing arguments and their
-        values (see preprocessor.py).
+  Args:
+    batch_size_per_clone: batch size to use per clone.
+    create_tensor_dict_fn: function to create tensor dictionary.
+    batch_queue_capacity: maximum number of elements to store within a queue.
+    num_batch_queue_threads: number of threads to use for batching.
+    prefetch_queue_capacity: maximum capacity of the queue used to prefetch
+                             assembled batches.
+    data_augmentation_options: a list of tuples, where each tuple contains a
+      data augmentation function and a dictionary containing arguments and their
+      values (see preprocessor.py).
 
-    Returns:
-      input queue: a batcher.BatchQueue object holding enqueued tensor_dicts
-        (which hold images, boxes and targets).  To get a batch of tensor_dicts,
-        call input_queue.Dequeue().
-    """
-    tensor_dict = create_tensor_dict_fn()
+  Returns:
+    input queue: a batcher.BatchQueue object holding enqueued tensor_dicts
+      (which hold images, boxes and targets).  To get a batch of tensor_dicts,
+      call input_queue.Dequeue().
+  """
+  tensor_dict = create_tensor_dict_fn()
 
-    tensor_dict[fields.InputDataFields.image] = tf.expand_dims(
-        tensor_dict[fields.InputDataFields.image], 0)
+  tensor_dict[fields.InputDataFields.image] = tf.expand_dims(
+      tensor_dict[fields.InputDataFields.image], 0)
 
-    images = tensor_dict[fields.InputDataFields.image]
-    float_images = tf.to_float(images)
-    tensor_dict[fields.InputDataFields.image] = float_images
+  images = tensor_dict[fields.InputDataFields.image]
+  float_images = tf.to_float(images)
+  tensor_dict[fields.InputDataFields.image] = float_images
 
-    include_instance_masks = (fields.InputDataFields.groundtruth_instance_masks
-                              in tensor_dict)
-    include_keypoints = (fields.InputDataFields.groundtruth_keypoints
-                         in tensor_dict)
-    include_multiclass_scores = (fields.InputDataFields.multiclass_scores
-                                 in tensor_dict)
-    if data_augmentation_options:
-        tensor_dict = preprocessor.preprocess(
-            tensor_dict, data_augmentation_options,
-            func_arg_map=preprocessor.get_default_func_arg_map(
-                include_multiclass_scores=include_multiclass_scores,
-                include_instance_masks=include_instance_masks,
-                include_keypoints=include_keypoints))
+  include_instance_masks = (fields.InputDataFields.groundtruth_instance_masks
+                            in tensor_dict)
+  include_keypoints = (fields.InputDataFields.groundtruth_keypoints
+                       in tensor_dict)
+  include_multiclass_scores = (fields.InputDataFields.multiclass_scores
+                               in tensor_dict)
+  if data_augmentation_options:
+    tensor_dict = preprocessor.preprocess(
+        tensor_dict, data_augmentation_options,
+        func_arg_map=preprocessor.get_default_func_arg_map(
+            include_label_weights=True,
+            include_multiclass_scores=include_multiclass_scores,
+            include_instance_masks=include_instance_masks,
+            include_keypoints=include_keypoints))
 
-    input_queue = batcher.BatchQueue(
-        tensor_dict,
-        batch_size=batch_size_per_clone,
-        batch_queue_capacity=batch_queue_capacity,
-        num_batch_queue_threads=num_batch_queue_threads,
-        prefetch_queue_capacity=prefetch_queue_capacity)
-    return input_queue
+  input_queue = batcher.BatchQueue(
+      tensor_dict,
+      batch_size=batch_size_per_clone,
+      batch_queue_capacity=batch_queue_capacity,
+      num_batch_queue_threads=num_batch_queue_threads,
+      prefetch_queue_capacity=prefetch_queue_capacity)
+  return input_queue
 
 
 def get_inputs(input_queue,

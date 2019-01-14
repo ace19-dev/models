@@ -60,7 +60,7 @@ intersection over union based on the object masks instead of object boxes.
 
 ## Open Images V2 detection metric
 
-`EvalConfig.metrics_set='open_images_metrics'`
+`EvalConfig.metrics_set='oid_V2_detection_metrics'`
 
 This metric is defined originally for evaluating detector performance on [Open Images V2 dataset](https://github.com/openimages/dataset)
 and is fairly similar to the PASCAL VOC 2007 metric mentioned above.
@@ -125,3 +125,26 @@ other kind of car is annotated as "car" (for example, a sedan). Given this
 convention, the evaluation software treats all classes independently, ignoring
 the hierarchy. To achieve high performance values, object detectors should
 output bounding-boxes labelled in the same manner.
+
+The old metric name is DEPRECATED.
+`EvalConfig.metrics_set='open_images_V2_detection_metrics'`
+
+## OID Challenge Object Detection Metric 2018
+
+`EvalConfig.metrics_set='oid_challenge_detection_metrics'`
+
+The metric for the OID Challenge Object Detection Metric 2018, Object Detection
+track. The description is provided on the [Open Images Challenge
+website](https://storage.googleapis.com/openimages/web/challenge.html).
+
+The old metric name is DEPRECATED.
+`EvalConfig.metrics_set='oid_challenge_object_detection_metrics'`
+
+## OID Challenge Visual Relationship Detection Metric 2018
+
+The metric for the OID Challenge Visual Relationship Detection Metric 2018, Visual
+Relationship Detection track. The description is provided on the [Open Images
+Challenge
+website](https://storage.googleapis.com/openimages/web/challenge.html). Note:
+this is currently a stand-alone metric, that can be used only through the
+`metrics/oid_vrd_challenge_evaluation.py` util.
