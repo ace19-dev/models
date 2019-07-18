@@ -254,6 +254,23 @@ class PreprocessorBuilderTest(tf.test.TestCase):
         'pad_color': None,
     })
 
+  def test_build_random_absolute_pad_image(self):
+    preprocessor_text_proto = """
+    random_absolute_pad_image {
+      max_height_padding: 50
+      max_width_padding: 100
+    }
+    """
+    preprocessor_proto = preprocessor_pb2.PreprocessingStep()
+    text_format.Merge(preprocessor_text_proto, preprocessor_proto)
+    function, args = preprocessor_builder.build(preprocessor_proto)
+    self.assertEqual(function, preprocessor.random_absolute_pad_image)
+    self.assertEqual(args, {
+        'max_height_padding': 50,
+        'max_width_padding': 100,
+        'pad_color': None,
+    })
+
   def test_build_random_crop_pad_image(self):
     preprocessor_text_proto = """
     random_crop_pad_image {
@@ -278,6 +295,7 @@ class PreprocessorBuilderTest(tf.test.TestCase):
         'overlap_thresh': 0.5,
         'clip_boxes': False,
         'random_coef': 0.125,
+        'pad_color': None,
     })
 
   def test_build_random_crop_pad_image_with_optional_parameters(self):
@@ -295,9 +313,6 @@ class PreprocessorBuilderTest(tf.test.TestCase):
       min_padded_size_ratio: 0.75
       max_padded_size_ratio: 0.5
       max_padded_size_ratio: 0.75
-      pad_color: 0.5
-      pad_color: 0.5
-      pad_color: 1.0
     }
     """
     preprocessor_proto = preprocessor_pb2.PreprocessingStep()
@@ -313,7 +328,7 @@ class PreprocessorBuilderTest(tf.test.TestCase):
         'random_coef': 0.125,
         'min_padded_size_ratio': (0.5, 0.75),
         'max_padded_size_ratio': (0.5, 0.75),
-        'pad_color': (0.5, 0.5, 1.0)
+        'pad_color': None,
     })
 
   def test_build_random_crop_to_aspect_ratio(self):
@@ -347,6 +362,51 @@ class PreprocessorBuilderTest(tf.test.TestCase):
     self.assert_dictionary_close(args, {'max_black_patches': 20,
                                         'probability': 0.95,
                                         'size_to_image_ratio': 0.12})
+
+  def test_auto_augment_image(self):
+    preprocessor_text_proto = """
+    autoaugment_image {
+      policy_name: 'v0'
+    }
+    """
+    preprocessor_proto = preprocessor_pb2.PreprocessingStep()
+    text_format.Merge(preprocessor_text_proto, preprocessor_proto)
+    function, args = preprocessor_builder.build(preprocessor_proto)
+    self.assertEqual(function, preprocessor.autoaugment_image)
+    self.assert_dictionary_close(args, {'policy_name': 'v0'})
+
+  def test_drop_label_probabilistically(self):
+    preprocessor_text_proto = """
+    drop_label_probabilistically{
+      label: 2
+      drop_probability: 0.5
+    }
+    """
+    preprocessor_proto = preprocessor_pb2.PreprocessingStep()
+    text_format.Merge(preprocessor_text_proto, preprocessor_proto)
+    function, args = preprocessor_builder.build(preprocessor_proto)
+    self.assertEqual(function, preprocessor.drop_label_probabilistically)
+    self.assert_dictionary_close(args, {
+        'dropped_label': 2,
+        'drop_probability': 0.5
+    })
+
+  def test_remap_labels(self):
+    preprocessor_text_proto = """
+    remap_labels{
+      original_labels: 1
+      original_labels: 2
+      new_label: 3
+    }
+    """
+    preprocessor_proto = preprocessor_pb2.PreprocessingStep()
+    text_format.Merge(preprocessor_text_proto, preprocessor_proto)
+    function, args = preprocessor_builder.build(preprocessor_proto)
+    self.assertEqual(function, preprocessor.remap_labels)
+    self.assert_dictionary_close(args, {
+        'original_labels': [1, 2],
+        'new_label': 3
+    })
 
   def test_build_random_resize_method(self):
     preprocessor_text_proto = """
@@ -408,6 +468,20 @@ class PreprocessorBuilderTest(tf.test.TestCase):
     function, args = preprocessor_builder.build(preprocessor_proto)
     self.assertEqual(function, preprocessor.subtract_channel_mean)
     self.assertEqual(args, {'means': [1.0, 2.0, 3.0]})
+
+  def test_random_self_concat_image(self):
+    preprocessor_text_proto = """
+    random_self_concat_image {
+      concat_vertical_probability: 0.5
+      concat_horizontal_probability: 0.25
+    }
+    """
+    preprocessor_proto = preprocessor_pb2.PreprocessingStep()
+    text_format.Merge(preprocessor_text_proto, preprocessor_proto)
+    function, args = preprocessor_builder.build(preprocessor_proto)
+    self.assertEqual(function, preprocessor.random_self_concat_image)
+    self.assertEqual(args, {'concat_vertical_probability': 0.5,
+                            'concat_horizontal_probability': 0.25})
 
   def test_build_ssd_random_crop(self):
     preprocessor_text_proto = """

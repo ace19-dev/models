@@ -14,8 +14,13 @@
 # ==============================================================================
 """Label map utility functions."""
 
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+
 import logging
 
+from six.moves import range
 import tensorflow as tf
 from google.protobuf import text_format
 from object_detection.protos import string_int_label_map_pb2
@@ -184,7 +189,9 @@ def get_label_map_dict(label_map_path,
       # there are gaps in the labels, fill in gaps.
       for value in range(1, max(values)):
         if value not in values:
-          label_map_dict['class_' + str(value)] = value
+          # TODO(rathodv): Add a prefix 'class_' here once the tool to generate
+          # teacher annotation adds this prefix in the data.
+          label_map_dict[str(value)] = value
 
   return label_map_dict
 

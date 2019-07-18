@@ -28,6 +28,7 @@ from official.resnet.keras import resnet_cifar_model
 from official.utils.flags import core as flags_core
 from official.utils.logs import logger
 from official.utils.misc import distribution_utils
+from official.utils.misc import keras_utils
 
 
 LR_SCHEDULE = [  # (multiplier, epoch to start) tuples
@@ -53,6 +54,7 @@ def learning_rate_schedule(current_epoch,
   Returns:
     Adjusted learning rate.
   """
+  del current_batch, batches_per_epoch  # not used
   initial_learning_rate = keras_common.BASE_LEARNING_RATE * batch_size / 128
   learning_rate = initial_learning_rate
   for mult, start_epoch in LR_SCHEDULE:
@@ -81,7 +83,7 @@ def parse_record_keras(raw_record, is_training, dtype):
     Tuple with processed image tensor and one-hot-encoded label tensor.
   """
   image, label = cifar_main.parse_record(raw_record, is_training, dtype)
-  label = tf.sparse_to_dense(label, (cifar_main.NUM_CLASSES,), 1)
+  label = tf.compat.v1.sparse_to_dense(label, (cifar_main.NUM_CLASSES,), 1)
   return image, label
 
 
@@ -97,16 +99,13 @@ def run(flags_obj):
   Returns:
     Dictionary of training and eval stats.
   """
-  if flags_obj.enable_eager:
-    tf.enable_eager_execution()
+  keras_utils.set_session_config(enable_eager=flags_obj.enable_eager,
+                                 enable_xla=flags_obj.enable_xla)
 
   dtype = flags_core.get_tf_dtype(flags_obj)
   if dtype == 'fp16':
     raise ValueError('dtype fp16 is not supported in Keras. Use the default '
                      'value(fp32).')
-
-  per_device_batch_size = distribution_utils.per_device_batch_size(
-      flags_obj.batch_size, flags_core.get_num_gpus(flags_obj))
 
   data_format = flags_obj.data_format
   if data_format is None:
@@ -114,7 +113,17 @@ def run(flags_obj):
                    if tf.test.is_built_with_cuda() else 'channels_last')
   tf.keras.backend.set_image_data_format(data_format)
 
+  strategy = distribution_utils.get_distribution_strategy(
+      distribution_strategy=flags_obj.distribution_strategy,
+      num_gpus=flags_obj.num_gpus,
+      num_workers=distribution_utils.configure_cluster(),
+      all_reduce_alg=flags_obj.all_reduce_alg,
+      num_packs=flags_obj.num_packs)
+
+  strategy_scope = distribution_utils.get_strategy_scope(strategy)
+
   if flags_obj.use_synthetic_data:
+    distribution_utils.set_up_synthetic_data()
     input_fn = keras_common.get_synth_input_fn(
         height=cifar_main.HEIGHT,
         width=cifar_main.WIDTH,
@@ -122,26 +131,26 @@ def run(flags_obj):
         num_classes=cifar_main.NUM_CLASSES,
         dtype=flags_core.get_tf_dtype(flags_obj))
   else:
+    distribution_utils.undo_set_up_synthetic_data()
     input_fn = cifar_main.input_fn
 
   train_input_dataset = input_fn(
       is_training=True,
       data_dir=flags_obj.data_dir,
-      batch_size=per_device_batch_size,
+      batch_size=flags_obj.batch_size,
       num_epochs=flags_obj.train_epochs,
-      parse_record_fn=parse_record_keras)
+      parse_record_fn=parse_record_keras,
+      datasets_num_private_threads=flags_obj.datasets_num_private_threads,
+      dtype=dtype)
 
-  eval_input_dataset = input_fn(
-      is_training=False,
-      data_dir=flags_obj.data_dir,
-      batch_size=per_device_batch_size,
-      num_epochs=flags_obj.train_epochs,
-      parse_record_fn=parse_record_keras)
-
-  strategy = distribution_utils.get_distribution_strategy(
-      flags_obj.num_gpus, flags_obj.turn_off_distribution_strategy)
-
-  strategy_scope = keras_common.get_strategy_scope(strategy)
+  eval_input_dataset = None
+  if not flags_obj.skip_eval:
+    eval_input_dataset = input_fn(
+        is_training=False,
+        data_dir=flags_obj.data_dir,
+        batch_size=flags_obj.batch_size,
+        num_epochs=flags_obj.train_epochs,
+        parse_record_fn=parse_record_keras)
 
   with strategy_scope:
     optimizer = keras_common.get_optimizer()
@@ -149,9 +158,11 @@ def run(flags_obj):
 
     model.compile(loss='categorical_crossentropy',
                   optimizer=optimizer,
-                  metrics=['categorical_accuracy'])
+                  metrics=(['categorical_accuracy']
+                           if flags_obj.report_accuracy_metrics else None),
+                  run_eagerly=flags_obj.run_eagerly)
 
-  time_callback, tensorboard_callback, lr_callback = keras_common.get_callbacks(
+  callbacks = keras_common.get_callbacks(
       learning_rate_schedule, cifar_main.NUM_IMAGES['train'])
 
   train_steps = cifar_main.NUM_IMAGES['train'] // flags_obj.batch_size
@@ -166,28 +177,48 @@ def run(flags_obj):
 
   validation_data = eval_input_dataset
   if flags_obj.skip_eval:
-    tf.keras.backend.set_learning_phase(1)
+    if flags_obj.set_learning_phase_to_train:
+      # TODO(haoyuzhang): Understand slowdown of setting learning phase when
+      # not using distribution strategy.
+      tf.keras.backend.set_learning_phase(1)
     num_eval_steps = None
     validation_data = None
+
+  if not strategy and flags_obj.explicit_gpu_placement:
+    # TODO(b/135607227): Add device scope automatically in Keras training loop
+    # when not using distribition strategy.
+    no_dist_strat_device = tf.device('/device:GPU:0')
+    no_dist_strat_device.__enter__()
 
   history = model.fit(train_input_dataset,
                       epochs=train_epochs,
                       steps_per_epoch=train_steps,
-                      callbacks=[
-                          time_callback,
-                          lr_callback,
-                          tensorboard_callback
-                      ],
+                      callbacks=callbacks,
                       validation_steps=num_eval_steps,
                       validation_data=validation_data,
-                      verbose=1)
+                      validation_freq=flags_obj.epochs_between_evals,
+                      verbose=2)
   eval_output = None
   if not flags_obj.skip_eval:
     eval_output = model.evaluate(eval_input_dataset,
                                  steps=num_eval_steps,
-                                 verbose=1)
-  stats = keras_common.build_stats(history, eval_output, time_callback)
+                                 verbose=2)
+
+  if not strategy and flags_obj.explicit_gpu_placement:
+    no_dist_strat_device.__exit__()
+
+  stats = keras_common.build_stats(history, eval_output, callbacks)
   return stats
+
+
+def define_cifar_flags():
+  keras_common.define_keras_flags(dynamic_loss_scale=False)
+
+  flags_core.set_defaults(data_dir='/tmp/cifar10_data/cifar-10-batches-bin',
+                          model_dir='/tmp/cifar10_model',
+                          train_epochs=182,
+                          epochs_between_evals=10,
+                          batch_size=128)
 
 
 def main(_):
@@ -196,7 +227,6 @@ def main(_):
 
 
 if __name__ == '__main__':
-  tf.logging.set_verbosity(tf.logging.INFO)
-  cifar_main.define_cifar_flags()
-  keras_common.define_keras_flags()
+  tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.INFO)
+  define_cifar_flags()
   absl_app.run(main)
