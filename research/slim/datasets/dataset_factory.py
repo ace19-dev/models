@@ -24,12 +24,15 @@ from datasets import imagenet
 from datasets import mnist
 from datasets import visualwakewords
 
+from datasets import modelnet
+
 datasets_map = {
     'cifar10': cifar10,
     'flowers': flowers,
     'imagenet': imagenet,
     'mnist': mnist,
     'visualwakewords': visualwakewords,
+    'modelnet': modelnet,
 }
 
 
